@@ -1,20 +1,3 @@
-Skip to content
-This repository
-Search
-Pull requests
-Issues
-Gist
- @michaellegrand
- Unwatch 3
-  Star 0
-  Fork 0 michaellegrand/bad_batch_alert Private
- Code  Issues 0  Pull requests 0  Projects 0  Wiki  Pulse  Graphs  Settings
-Branch: master Find file Copy pathbad_batch_alert/smsService/adminActions.js
-f5518b6  22 days ago
-@michaellegrand michaellegrand spelling... sigh.. I need way to test locally...
-2 contributors @michaellegrand @LeGrandPants
-RawBlameHistory     
-94 lines (81 sloc)  2.88 KB
 // 
 // A collection of functions related to special admin actions that can be triggered from an admin phone number*/
 //
