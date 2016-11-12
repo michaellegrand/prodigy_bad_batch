@@ -73,15 +73,20 @@ var UserActions = function() {
   };
   //sends a list of resources in that region
   self.userResources = function(g, res, client, sender, action)
-    {
-        console.log("userResources");
-        var body  = "Text the number for your location if it has changed; if not text, list";
-        var media = "http://www.mike-legrand.com/BadBatchAlert/regions_01.jpg";
-        var resp  = '<Response><Message><Body>' + body  + '</Body><Media>' + media + '</Media></Message></Response>';
-        res.status(200)
-        .contentType('text/xml')
-        .send(resp);
-    };
+  {
+  console.log("userResources");
+  var body  = "Text resources + your region number e.g., resources2, to receive a list of resources in that region";
+  var resourceRegion = action.charAt('resources'.length);
+  if (resourceRegion == '1'){
+      body = 'Union Memorial'
+  };else if (resourceRegion == '2'){
+      body = 'JHMI'
+  };
+  var resp  = '<Response><Message><Body>' + body + '</Body></Message></Response>';
+  res.status(200)
+  .contentType('text/xml')
+  .send(resp);
+  };
     
   self.doUserAction = function(g, res, client, sender, body)
   {
@@ -91,9 +96,8 @@ var UserActions = function() {
       self.userSetRegion(g, res, client, sender, body);
     } else if (body.toLowerCase().startsWith('i am')) {
       self.userSetName(g, res, client, sender, body);
-        else if (body.toLowerCase() == 'resources') {
-        self.
-    }
+    } else if (body.toLowerCase().startsWith('resources') {
+      self.userResources(g, res, client, sender, body);
     } else {
       self.userJoin(g, res, client, sender, body);
     }
