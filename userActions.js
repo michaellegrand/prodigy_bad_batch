@@ -71,7 +71,18 @@ var UserActions = function() {
       });
     });
   };
- 
+  //sends a list of resources in that region
+  self.userResources = function(g, res, client, sender, action)
+    {
+        console.log("userResources");
+        var body  = "Text the number for your location if it has changed; if not text, list";
+        var media = "http://www.mike-legrand.com/BadBatchAlert/regions_01.jpg";
+        var resp  = '<Response><Message><Body>' + body  + '</Body><Media>' + media + '</Media></Message></Response>';
+        res.status(200)
+        .contentType('text/xml')
+        .send(resp);
+    };
+    
   self.doUserAction = function(g, res, client, sender, body)
   {
     if (body.toLowerCase() == "map") {
@@ -80,6 +91,9 @@ var UserActions = function() {
       self.userSetRegion(g, res, client, sender, body);
     } else if (body.toLowerCase().startsWith('i am')) {
       self.userSetName(g, res, client, sender, body);
+        else if (body.toLowerCase() == 'resources') {
+        self.
+    }
     } else {
       self.userJoin(g, res, client, sender, body);
     }
