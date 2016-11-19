@@ -16,17 +16,6 @@ var UserActions = function() {
       .contentType('text/xml')
       .send(resp);
   }; 
- //David start //
-   self.userLeave = function(g, res, client, sender, action)
-  {
-    console.log("userLeave");
-    var body  = "Thanks for using Bad Batch. Text 'join' to continue recieving updates.";
-    var resp  = '<Response><Message><Body>' + body + '</Body>' + '</Message></Response>';
-    res.status(200)
-      .contentType('text/xml')
-      .send(resp);
-  };
- //David end//
 
   self.userMap = function(g, res, client, sender, action)
   {
@@ -107,7 +96,7 @@ var UserActions = function() {
     var cryptoSender = g.cryptoHelper.encrypt(sender);
     var findQueryString = "DELETE * FROM users WHERE phone_number = '" + cryptoSender + "'";
     var findQuery = client.query(findQueryString);
-    var body= ' You have been removed from Bad Batch.'
+    var body= "Thanks for using Bad Batch. Text 'join' to continue recieving updates.";
     var resp  = '<Response><Message><Body>' + body + '</Body></Message></Response>';
   res.status(200)
   .contentType('text/xml')
