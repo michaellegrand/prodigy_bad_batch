@@ -9,7 +9,7 @@ var UserActions = function() {
   self.userJoin = function(g, res, client, sender, action)
   {
     console.log("userJoin");
-    var body  = "join, help, location, map, Hospital,    ";
+    var body  = "join, help, location, map,i am, resources,near , report,    ";
     var resp  = '<Response><Message><Body>' + body + '</Body></Message></Response>';
     res.status(200)
       .contentType('text/xml')
@@ -180,7 +180,3 @@ var UserActions = function() {
 };
   
   
-
-
-
-
