@@ -16,17 +16,17 @@ var UserActions = function() {
       .contentType('text/xml')
       .send(resp);
   }; 
-  //David start //
-   {
+ //David start //
+   self.userLeave = function(g, res, client, sender, action)
+  {
     console.log("userLeave");
-    var body  = "Thanks for using Bad Batch. Text 'join' to continue recieving our service.";
-    var media = "http://www.mike-legrand.com/BadBatchAlert/logoSmall150.png";
-    var resp  = '<Response><Message><Body>' + body + '</Body><Media>' + media + '</Media></Message></Response>';
+    var body  = "Thanks for using Bad Batch. Text 'join' to continue recieving updates.";
+    var resp  = '<Response><Message><Body>' + body + '</Body>' + '</Message></Response>';
     res.status(200)
       .contentType('text/xml')
       .send(resp);
   };
-//David end//
+ //David end//
 
   self.userMap = function(g, res, client, sender, action)
   {
@@ -103,9 +103,15 @@ var UserActions = function() {
   //David// 
 
   self.userLeave= function(g, res, client, sender, body)
-  {
-    var findQueryString =
-
+  { 
+    var cryptoSender = g.cryptoHelper.encrypt(sender);
+    var findQueryString = "DELETE * FROM users WHERE phone_number = '" + cryptoSender + "'";
+    var findQuery = client.query(findQueryString);
+    var body= ' You have been removed from Bad Batch.'
+    var resp  = '<Response><Message><Body>' + body + '</Body></Message></Response>';
+  res.status(200)
+  .contentType('text/xml')
+  .send(resp);
   }
 
   //David//
@@ -119,12 +125,11 @@ var UserActions = function() {
       self.userSetRegion(g, res, client, sender, body);
     } else if (body.toLowerCase().startsWith('i am')) {
       self.userSetName(g, res, client, sender, body);
-    } else if (body.toLowerCase().startsWith('resources') {
+    } else if (body.toLowerCase().startsWith('resources')) {
       self.userResources(g, res, client, sender, body);
       // david// 
-      else if (body.toLowerCase() =="leave"){
-      self.userLeave(g, res, client, sender, body)
-      }
+    } else if (body.toLowerCase() =="leave") {
+      self.userLeave(g, res, client, sender, body);
       //david//
     } else {
       self.userJoin(g, res, client, sender, body);
