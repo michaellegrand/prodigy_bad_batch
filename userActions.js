@@ -72,7 +72,7 @@ var UserActions = function() {
     });
   };
 
-  self.userResources = function(g, res, client, sender, action)
+  self.userNearnew = function(g, res, client, sender, action)
   {
     console.log("userResources");
     var body  = "Text resources + your region number e.g., resources2, to receive a list of resources in that region";
