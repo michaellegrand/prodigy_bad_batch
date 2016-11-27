@@ -72,22 +72,6 @@ var UserActions = function() {
     });
   };
 
-  self.userNearnew = function(g, res, client, sender, action)
-  {
-    console.log("userResources");
-    var body  = "Text resources + your region number e.g., resources2, to receive a list of resources in that region";
-    var resourceRegion = action.charAt('resources'.length);
-    if (resourceRegion == '1') {
-      body = 'Union Memorial';
-    } else if (resourceRegion == '2'){
-      body = 'JHMI'
-    };
-    var resp  = '<Response><Message><Body>' + body + '</Body></Message></Response>';
-    res.status(200)
-    .contentType('text/xml')
-    .send(resp);
-  };
-
   //gives the user basic infro for the nearest medical center or clinic based on user defined region
   self.userNear = function(g, res, client, sender, action)
   {
@@ -95,8 +79,8 @@ var UserActions = function() {
     var body  = "Has your location changed? Text y(Yes) or n(No)";
     if (body.toLowerCase() == 'y') {
     var body  = "Text near + your region number e.g., near2, to receive a list of resources in that region";
-    var newRegion = action.charAt('near'.length);
-    return resourceByregion(newRegion);
+    var newRegion = action[4];
+    self.resourceByregion(newRegion);
     else
     //if user responds with "n" return a list for the nearest medical center or clinic avaiable for the user based on user's original location in database
     var cryptoSender = g.cryptoHelper.encrypt(sender);
@@ -177,7 +161,9 @@ var UserActions = function() {
       self.userNear(g, res, client, sender, body);
     }	else if (body.toLowerCase() == 'y') {
       self.userNear(g, res, client, sender, body);
-    }	else if (body.toLowerCase().startsWith('report')) {
+    }	else if (body.toLowerCase().startsWith('near') {
+      self.resourceByregion(body[4]);
+    }  else if (body.toLowerCase().startsWith('report')) {
       self.userReport(g, res, client, sender, body);
     } else {
       self.userJoin(g, res, client, sender, body);
