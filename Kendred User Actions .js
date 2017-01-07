@@ -9,7 +9,8 @@ var Commands =["near","join","help","map","leave","report","resources","i am"];
   self.userJoin = function(g, res, client, sender, action)
   {
     console.log("userJoin");
-    var body  = "Thank you for registering. Text the word 'map' to set your location. Find out more at BadBatchAlert.com";
+	  
+    var body  = "Thank you for registering. Text the word 'map' to set your location, and Command for all Commands. Find out more at BadBatchAlert.com";
     var media = "http://www.mike-legrand.com/BadBatchAlert/logoSmall150.png";
     var resp  = '<Response><Message><Body>' + body + '</Body><Media>' + media + '</Media></Message></Response>';
     res.status(200)
