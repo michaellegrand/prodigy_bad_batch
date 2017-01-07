@@ -2,25 +2,27 @@
 // A collection of functions that the user can initiate by texting different messages.*/
 //
 var UserActions = function() {
-
+var Commands =["near","join","help","map","leave","report","resources","i am"];
   var self = this;
 
-  //fires off a test alert to all the registered users
+  //registers a new user
   self.userJoin = function(g, res, client, sender, action)
   {
     console.log("userJoin");
-    var body  = "join, help, location, map,i am, resources,near , report,";
-    var resp  = '<Response><Message><Body>' + body + '</Body></Message></Response>';
+    var body  = "Thank you for registering. Text the word 'map' to set your location. Find out more at BadBatchAlert.com";
+    var media = "http://www.mike-legrand.com/BadBatchAlert/logoSmall150.png";
+    var resp  = '<Response><Message><Body>' + body + '</Body><Media>' + media + '</Media></Message></Response>';
     res.status(200)
       .contentType('text/xml')
       .send(resp);
   };
+	
+  //list commands that a user can send
   self.userhelp = function(g, res, client, sender, action)
   {
-    console.log("userMap");
-    var body  = "Text the number for your location.";
-    var media = "http://www.mike-legrand.com/BadBatchAlert/regions_01.jpg";
-    var resp  = '<Response><Message><Body>' + body  + '</Body><Media>' + media + '</Media></Message></Response>';
+    console.log("userhelp");
+    var body  = Commands.join(", ");
+    var resp  = '<Response><Message><Body>' + body  + '</Body></Message></Response>';
     res.status(200)
         .contentType('text/xml')
         .send(resp);
@@ -174,7 +176,7 @@ var UserActions = function() {
       self.userJoin(g, res, client, sender, body);
 	} else { 
 	  self.userHelp (g, res, client, sender, body); 
-	}
+	} else if (body.toLowerCase().startsWith('userhelp'))
   };
 
 };
