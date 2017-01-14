@@ -27,6 +27,17 @@ var UserActions = function() {
         .contentType('text/xml')
         .send(resp);
   };
+	
+	 //David, gives user number for detox location info// 
+  self.userDetox = function(g, res, client, sender, action)
+  {
+    console.log("userDetox");
+    var body  = "call 410-433-5175 for 24 hour service.";
+    var resp  = '<Response><Message><Body>' + body + '</Body></Message></Response>';
+     res.status(200)
+    .contentType('text/xml')
+    .send(resp);
+  }
   
   self.userLeave= function(g, res, client, sender, action)
   { 
@@ -150,7 +161,16 @@ var UserActions = function() {
           .send(resp);
     });
   };
-
+ //David, gives user number for detox location info// 
+  self.userDetox = function(g, res, client, sender, action)
+  {
+    console.log("userDetox");
+    var body  = "call 410-433-5175 for 24 hour service.";
+    var resp  = '<Response><Message><Body>' + body + '</Body></Message></Response>';
+     res.status(200)
+    .contentType('text/xml')
+    .send(resp);
+  }
   //userReport will text the user's message to the admin phone number and will tell the user that it has been sent /
   self.userReport = function(g, res, client, sender, action)
   { 
@@ -211,7 +231,8 @@ var UserActions = function() {
   {
     if (body.toLowerCase() == "map") {
       self.userMap(g, res, client, sender, body);
-    } else if (body >= '0' && body <= '9') {
+    } 
+    }else if (body >= '0' && body <= '9') {
       self.userSetRegion(g, res, client, sender, body);
     } else if (body.toLowerCase().startsWith('i am')) {
       self.userSetName(g, res, client, sender, body);
@@ -227,6 +248,8 @@ var UserActions = function() {
       self.userNeedle(g, res, client, sender, body);
     } else if (body.toLowerCase() == 'commands') {
       self.userHelp(g, res, client, sender, body);
+    } else if (body.toLowerCase()=='detox'){
+      self.userDetox(g, res, client, sender, body);
     } else {
       self.userJoin(g, res, client, sender, body);
     }
