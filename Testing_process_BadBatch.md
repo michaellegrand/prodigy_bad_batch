@@ -7,3 +7,7 @@ Testing_process_BadBatch.md
 4. commit and check deployment logs
 5. if error still persists c/p code in closure compiler. this will help identify compiler errors(syntax, parse, any formatting errors or sometimes semantic errors)
 6. recommit and push
+7. Access application in heroku
+8. view logs to see if application succesfully started up or crashed
+9. if it's up syntax is right then test function logic
+10.it that fails the implement console.log(variables/function ouput)
