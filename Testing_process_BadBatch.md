@@ -20,6 +20,7 @@ Deploying badbathcalertdev server via Heroku and Twillio sms program
 3. download Heroku CLI tools
 4. connect to Heroku via [cmd login tutorial](https://devcenter.heroku.com/articles/heroku-cli)
 5. Change the number and values: heroku>settings>config vars>twillio number
+5.5 connect github repo to heroku for continous deployment
 6. Top right-hand corner more>viewlogs to view activity while testing functions
 7. Overview>adminium to view database records
 8. When setting up twillio number provide the url to the heroku app e.g. https://badbatchalertdev.heroku.app/*sms/receive*
