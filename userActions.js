@@ -108,33 +108,40 @@ var UserActions = function() {
       });
     });
   };
-
-  self.userResources = function(g, res, client, sender, action)
-  {
-    console.log("userResources");
-    var body  = "Text resources + your region number e.g., resources2, to receive a list of resources in that region";
-    var resourceRegion = action.charAt('resources'.length);
-    if (resourceRegion == '1') {
-      body = 'Union Memorial';
-    } else if (resourceRegion == '2'){
-      body = 'JHMI'
-    };
-    var resp  = '<Response><Message><Body>' + body + '</Body></Message></Response>';
-    res.status(200)
-    .contentType('text/xml')
-    .send(resp);
-  };
-
   //tells the user the nearest medical center avaiable for the user
+  //changes to make:!!! "If your're location has changed text near + region number e.g
+  //near2" send a map of the region "resources for your set region below"
   self.userNear = function(g, res, client, sender, action)
+    {
+      console.log("userNear");
+      var body  = "Has your location changed? Text y(Yes) or n(No)";
+      if (body.toLowerCase() == 'y') {
+      //suggestion - change boolean test to 'y' to newRegion
+      var body  = "Text near + your region number e.g., near2, to receive a list of resources in that region";
+     var newRegion = action[4];
+     self.resourceByregion(newRegion);
+      else
+      //description - if user responds with "n" return a list for the nearest medical center or clinic
+      // avaiable for the user based on user's original location in database
+      var cryptoSender = g.cryptoHelper.encrypt(sender);
+           var findQueryString = "SELECT * FROM users WHERE phone_number = '" + cryptoSender + "'";
+     var findQuery = client.query(findQueryString);
+     //question - what going on in the line below. How is 'row' being used in function(row)
+     findQuery.on('row', function(row) {
+     var region = row.region;
+     //question - should the clsoing bracket and parantheses end at the line above or will that
+     //prevent the function resourceByregion from accesing the variable region in that scope?
+     var body  = "Here are your options: " + resourceByregion; //question - am i correctly calling this function?
+     
+     var resp  = '<Response><Message><Body>' + body + '</Body></Message></Response>';
+     res.status(200)
+     .contentType('text/xml')
+     .send(resp);
+     });
+   };
+  
+  self.resourceByregion = function(region)
   {
-    console.log("userNear");
-    var cryptoSender = g.cryptoHelper.encrypt(sender);
-    var findQueryString = "SELECT * FROM users WHERE phone_number = '" + cryptoSender + "'";
-    var findQuery = client.query(findQueryString);
-    findQuery.on('row', function(row) {
-      var region = row.region;
-      var body  = "Here are your options: ";
       if (region == 1) {
         body = "Location: Downtown Baltimore, Mercy \n443-567-0055";
       } else if (region == 2) {
@@ -238,8 +245,8 @@ var UserActions = function() {
       self.userSetName(g, res, client, sender, body);
     } else if (body.toLowerCase().startsWith('resources')) {
       self.userResources(g, res, client, sender, body);
-    } else if (body.toLowerCase() == 'near') {
-      self.userNear(g, res, client, sender, body);
+    }	else if (body.toLowerCase().startsWith('near') {
+      self.resourceByregion(body[4]);
     } else if (body.toLowerCase().startsWith('report')) {
       self.userReport(g, res, client, sender, body);
     } else if (body.toLowerCase() == 'leave') {
