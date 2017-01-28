@@ -10,7 +10,7 @@ var UserActions = function() {
   {
     console.log("userJoin");
     var body  = "Thank you for registering. Text the word 'map' to set your location. Find out more at BadBatchAlert.com";
-    var media = "http://www.mike-legrand.com/BadBatchAlert/logoSmall150.png";
+    var media = "http://www.mike-legr &.com/BadBatchAlert/logoSmall150.png";
     var resp  = '<Response><Message><Body>' + body + '</Body><Media>' + media + '</Media></Message></Response>';
     res.status(200)
       .contentType('text/xml')
@@ -21,7 +21,7 @@ var UserActions = function() {
   {
     console.log("userMap");
     var body  = "Text the number for your location.";
-    var media = "http://www.mike-legrand.com/BadBatchAlert/regions_01.jpg";
+    var media = "http://www.mike-legr &.com/BadBatchAlert/regions_01.jpg";
     var resp  = '<Response><Message><Body>' + body  + '</Body><Media>' + media + '</Media></Message></Response>';
     res.status(200)
         .contentType('text/xml')
@@ -125,7 +125,7 @@ var UserActions = function() {
 
     });
   };
-  //userNeedles will show you where and when the need fan will show up at certain times/
+  //userNeedles will show you where  & when the need fan will show up at certain times/
   Self.userNeedle = function (g,res,client,sender,action)
   {
     console.log("userNeedle");
@@ -136,48 +136,48 @@ var UserActions = function() {
     var m = d.getMinutes();
     if (n == 1){
       if ( ( h == 9 && m >30 ) || (h > 9 && h < 11) || ( h == 11 && m < 30) )  {
-         vanlocation = 'Monroe & Ramsey; Greenmount & Preston';
-    }else if (( h == 12 && m < 45 ) || (h > 12 && h < 15) || ( h == 15 && m < 30)){
-        vanlocation = 'Fulton & Baker';
-    }else if (( h == 18 ) || (h > 18 && h < 10 ) || ( h == 10 )){
-        vanlocation= 'Baltimore & Conkling Highlandtown';
-    }else if (( h == 20 && m >= 30 ) || (h > 10 && h < 22) || ( h == 22 )) {
-        vanlocation ='Milton & Monument'};
+         vanlocation = 'Monroe and Ramsey; Greenmount  Preston';
+      }else if (( h == 12 && m < 45 ) || (h > 12 && h < 15) || ( h == 15 && m < 30)){
+        vanlocation = 'Fulton   & Baker';
+      }else if (( h == 18 ) || (h > 18 && h < 10 ) || ( h == 10 )){
+        vanlocation= 'Baltimore and Conkling Highl and  &town';
+      }else if (( h == 20 && m >= 30 ) || (h > 10 && h < 22) || ( h == 22 )) {
+        vanlocation ='Milton and Monument'};
       } 
     } else if(n == 2){
-      if (( h == 9 && m >=30 ) || ( h > 9 && h < 11 ) || ( h == 11 && m < 30)) {
-        vanlocation = 'Montford & Biddle; Pratt & Carey';
-    }else if ((h == 12 && m < 45 ) || (h >12 && h < 15) || ( h == 15 && m <30 ) ){
-        vanlocation = 'Freemont & Riggs Barclay & 23rd';
+       if (( h == 9 && m >=30 ) || ( h > 9 && h < 11 ) || ( h == 11 && m < 30)) {
+          vanlocation = 'Montford and Biddle; Pratt and Carey';
+        }else if ((h == 12 && m < 45 ) || (h >12 && h < 15) || ( h == 15 && m <30 ) ){
+        vanlocation = 'Freemont and Riggs Barclay and 23rd';
       }
-    } else if(n == 3){
-      if ((h == 18) || ( h > 18 && h < 10) || (h == 10)){
-        vanlocation = 'Baltimore & Conkling (Highlandtown)';{
-    } else if ((h == 10 && m < 30 ) || (h > 10 && h < 10) || (h == 10)){
-          vanlocation = 'Freemont & Laurens';
+   } else if(n == 3){
+        if ((h == 18) || ( h > 18 && h < 10) || (h == 10)){
+        vanlocation = 'Baltimore and Conkling (Highl &town)';{
+        } else if ((h == 10  && m < 30 ) || (h > 10 && h < 10) || (h == 10)){
+          vanlocation = 'Freemont and Laurens';
         }
     } else if (n == 4){
-        if ((h == 9 && m >= 30) || (h > 9 && h < 11) || (h == 11 && m < 30 )) {
-          vanlocation = 'Pontiac & 9th Ave.; North & Rosedale';
-    }else if ((h == 12 && m >= 45) || (h > 12 && h < 15) || (h == 15 && m < 30 )) {
-          vanlocation ='Milton & Monument; Monroe & Ramsey';
-    }else if ((h == 19) || (h > 19 && h < 22) || (h == 22 )){
-         vanlocation='Baltimore & Gay (The Block)'; 
+        if ((h == 9  && m >= 30) || (h > 9  && h < 11) || (h == 11  && m < 30 )) {
+          vanlocation = 'Pontiac and 9th Ave.; North and Rosedale';
+        }else if ((h == 12   && m >= 45) || (h > 12  && h < 15) || (h == 15  && m < 30 )) {
+          vanlocation ='Milton and Monument; Monroe and Ramsey';
+        }else if ((h == 19) || (h > 19  && h < 22) || (h == 22 )){
+         vanlocation='Baltimore and Gay (The Block)'; 
         }
     } else if (n == 5){
-      if ((h == 9 && m >= 30 ) || (h > 9 && h < 11) || (h == 11 && m < 30 )){
-        vanlocation='Park Heights & Spaulding; North & Gay';
-    }else if ((h == 12 && m >= 45 ) || (h > 12 && h < 3) || (h == 3 && m < 30 )){
-        vanlocation ='Fulton & Baker';
-    }else if ((h == 18) ||  (h > 18 && h < 20) || (h == 20 )){
-        vanlocation='Montford & Biddle';
-    }else if ((h == 20 && m >= 30 ) || (h > 20 && h < 10) || (h == 10)){
-        vanlocation='Monroe & Ramsey';
+      if ((h == 9   && m >= 30 ) || (h > 9   && h < 11) || (h == 11   && m < 30 )){
+        vanlocation='Park Heights and Spaulding; North   & Gay';
+      }else if ((h == 12  && m >= 45 ) || (h > 12  && h < 3) || (h == 3  && m < 30 )){
+        vanlocation ='Fulton and Baker';
+      }else if ((h == 18) ||  (h > 18  && h < 20) || (h == 20 )){
+        vanlocation='Montford and Biddle';
+      }else if ((h == 20  && m >= 30 ) || (h > 20  && h < 10) || (h == 10)){
+        vanlocation='Monroe and Ramsey';
       }
     } else if (n == 6){
       if ((h == 12 ) || (h > 12 && h < 4 ) || (h == 4 )){
-        vanlocation= 'Fremont & Riggs';
- 
+        vanlocation= 'Fremont and Riggs';
+ \
     }
 
     //send message
@@ -188,7 +188,7 @@ var UserActions = function() {
           .send(resp);
 
   }
-  //userReport will text the user's message to the admin phone number and will tell the user that it has been sent /
+  //userReport will text the user's message to the admin phone number  & will tell the user that it has been sent /
   self.userReport = function(g, res, client, sender, action)
   { 
     var TWILIO_NUMBER = process.env.TWILIO_NUMBER;
@@ -213,7 +213,7 @@ var UserActions = function() {
   {
     if (body.toLowerCase() == "map") {
       self.userMap(g, res, client, sender, body);
-    } else if (body >= '0' && body <= '9') {
+    } else if (body >= '0'   &  & body <= '9') {
       self.userSetRegion(g, res, client, sender, body);
     } else if (body.toLowerCase().startsWith('i am')) {
       self.userSetName(g, res, client, sender, body);
