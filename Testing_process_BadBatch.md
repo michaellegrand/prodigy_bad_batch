@@ -23,5 +23,5 @@ Deploying badbathcalertdev server via Heroku and Twillio sms program
 5.5 connect github repo to heroku for continous deployment
 6. Top right-hand corner more>viewlogs to view activity while testing functions
 7. Overview>adminium to view database records
-8. When setting up twillio number provide the url to the heroku app e.g. https://badbatchalertdev.heroku.app/*sms/receive*
+8. When [setting up twillio number](https://support.twilio.com/hc/en-us/articles/223136107-How-does-Twilio-s-Free-Trial-work-) provide the url to the heroku app e.g. https://badbatchalertdev.heroku.app/*sms/receive*
     Be sure to add sms/request and sms/receive at the end of the url so twillio know where to find the code that utilizes the api and processes the request.
