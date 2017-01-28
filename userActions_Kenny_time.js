@@ -133,50 +133,51 @@ var UserActions = function() {
     var n = d.getDay();
     var vanlocation = 'van is not in service';
     var h = d.getHours();
+    var m = d.getMinutes();
     if (n == 1){
-      if ( ( h > 9 and m >30 ) and ( h < 11 and m < 30) )  {
+      if ( ( h == 9 && m >30 ) || (h > 9 && h < 11) || ( h == 11 && m < 30) )  {
          vanlocation = 'Monroe & Ramsey; Greenmount & Preston';
-      }else if (( h > 12 and m < 45 ) and ( h < 15 and m < 30)){
+    }else if (( h == 12 && m < 45 ) || (h > 12 && h < 15) || ( h == 15 && m < 30)){
         vanlocation = 'Fulton & Baker';
-      }else if (( h > 18 ) and ( h < 10 )){
+    }else if (( h == 18 ) || (h > 18 && h < 10 ) || ( h == 10 )){
         vanlocation= 'Baltimore & Conkling Highlandtown';
-      }else if (( h > 10 and m < 30 ) and ( h < 22 )) {
+    }else if (( h == 20 && m >= 30 ) || (h > 10 && h < 22) || ( h == 22 )) {
         vanlocation ='Milton & Monument'};
-      }
+      } 
     } else if(n == 2){
-      if (( h > 9 and m <30 ) and ( h <11 and m < 30)) {
+      if (( h == 9 && m >=30 ) || ( h > 9 && h < 11 ) || ( h == 11 && m < 30)) {
         vanlocation = 'Montford & Biddle; Pratt & Carey';
-      }else if ((h > 12 and m <45 ) and ( h > 15 and m <30 ) ){
+    }else if ((h == 12 && m < 45 ) || (h >12 && h < 15) || ( h == 15 && m <30 ) ){
         vanlocation = 'Freemont & Riggs Barclay & 23rd';
       }
     } else if(n == 3){
-      if ((h > 18) and (h < 10)){
+      if ((h == 18) || ( h > 18 && h < 10) || (h == 10)){
         vanlocation = 'Baltimore & Conkling (Highlandtown)';{
-        } else if ((h > 10 and m < 30 ) and (h < 10)){
+    } else if ((h == 10 && m < 30 ) || (h > 10 && h < 10) || (h == 10)){
           vanlocation = 'Freemont & Laurens';
         }
     } else if (n == 4){
-        if ((h > 9 and m >30) and (h < 11 and m < 30 )) {
+        if ((h == 9 && m >= 30) || (h > 9 && h < 11) || (h == 11 && m < 30 )) {
           vanlocation = 'Pontiac & 9th Ave.; North & Rosedale';
-        }else if ((h > 12 and m >45) and (h <15 and m <30 )) {
+    }else if ((h == 12 && m >= 45) || (h > 12 && h < 15) || (h == 15 && m < 30 )) {
           vanlocation ='Milton & Monument; Monroe & Ramsey';
-        }else if ((h > 19) and (h < 22 )){
+    }else if ((h == 19) || (h > 19 && h < 22) || (h == 22 )){
          vanlocation='Baltimore & Gay (The Block)'; 
         }
     } else if (n == 5){
-      if ((h > 9 and m > 30 ) and (h<11 and m <30 )){
+      if ((h == 9 && m >= 30 ) || (h > 9 && h < 11) || (h == 11 && m < 30 )){
         vanlocation='Park Heights & Spaulding; North & Gay';
-      }else if ((h >12 and m > 45 ) and (h<3 and m <30 )){
+    }else if ((h == 12 && m >= 45 ) || (h > 12 && h < 3) || (h == 3 && m < 30 )){
         vanlocation ='Fulton & Baker';
-      }else if ((h > 18) and (h <20 )){
+    }else if ((h == 18) ||  (h > 18 && h < 20) || (h == 20 )){
         vanlocation='Montford & Biddle';
-      }else if ((h > 20 and m >30 ) and (h<10)){
+    }else if ((h == 20 && m >= 30 ) || (h > 20 && h < 10) || (h == 10)){
         vanlocation='Monroe & Ramsey';
       }
     } else if (n == 6){
-      if ((h > 12 ) and (h < 4 )){
+      if ((h == 12 ) || (h > 12 && h < 4 ) || (h == 4 )){
         vanlocation= 'Fremont & Riggs';
- \
+ 
     }
 
     //send message
