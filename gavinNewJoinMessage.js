@@ -1,7 +1,8 @@
 // 
 // A collection of functions that the user can initiate by texting different messages.*/
 //
-var UserActions = function() {
+var UserActions = function() 
+{
   var self = this;
   var commands = ["van","near","join","commands","map","leave","report","resources","i am"];
   var commandDescriptions = ["Tells you where the Baltimore Needle Exchange Van is at any time.",
@@ -13,6 +14,7 @@ var UserActions = function() {
      "Text 'report' followed by your message to anonymously send a message to someone who can help you.", 
      "resources placeholder",
      "Text 'I am' followed by your name to set your name in our database"];
+};
   //registers a new user
   self.userJoin = function(g, res, client, sender, action)
   {
@@ -35,7 +37,7 @@ var UserActions = function() {
     console.log("userCommands");
     var body = "";
     for (var i = 0; i < command.length; i++){
-      body + commands[i] + ": " commandDescriptions[i];
+     body = body + commands[i] + ": " + commandDescriptions[i];
     }
     var resp  = '<Response><Message><Body>' + body  + '</Body></Message></Response>';
     res.status(200)
