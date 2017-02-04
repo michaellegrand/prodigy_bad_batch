@@ -100,23 +100,23 @@ var UserActions = function() {
       var region = row.region;
       var body  = "Here are your options: ";
       if (region == 1) {
-        body = "";
+        body = "Mercy Medical Center n\345 St. Paul Place n\Baltimore, MD 21202 (410) 332-9000";
       } else if (region == 2) {
-        body = "";
+        body = "Union Memorial Hospital n\201 E University Pkwy,n\ Baltimore, MD 21218 (410) 554-2000";
       } else if (region == 3) {
-        body = "";
+        body = "Greater Baltimore Medical Center n\6701 N Charles St, n\Towson, MD 21204 (443) 849-2000";
       } else if (region == 4) {
-        body = "";
+        body = "University of Maryland Rehabilitation and Orthopaedic Institute n\2200 Kernan Dr, n\Baltimore MD, 21207 (410) 448-2500";
       } else if (region == 5) {
-        body = "Location: Downtown Baltimore, Mercy \n410-332-9000 /nJohns Hopkinks \n410-955-5000";
+        body = "UM Medical Center ER n\22 S. Greene Street, n\Baltimore MD, 21201 ((410) 328-8667)";
       } else if (region == 6) { 
-        body = "";
+        body = "UMMC Midtown Campus ER n\827 Linden Ave, n\Baltimore MD, 21201 ((410) 255-8000)";
       } else if (region == 7) {
-        body = "";
+        body = "ChoiceOne Urgent Care Dundalk n\1730 Merritt Blvd, n\Baltimore MD, 20222 ((410) 650-4731)";
       } else if (region == 8) {
-        body = "";
+        body = "University of Maryland Faculty Physicians Inc n\5890 Waterloo Rd, n\Columbia MD, 21045 ((667) 214-2100)";
       } else if (region == 9) {
-        body = "";
+        body = "UM Baltimore Washington Medical Center ER n\301 Hospital Drive, n\Baltimore MD, 21060 ((410) 787-4000)";
       }
     
       var resp  = '<Response><Message><Body>' + body  + '</Body></Message></Response>';
