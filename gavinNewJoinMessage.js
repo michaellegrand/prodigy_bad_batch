@@ -12,7 +12,7 @@ var UserActions = function() {
      "Removes you from the Bad Batch alert service. You can rejoin at any time by texting this number",
      "Text 'report' followed by your message to anonymously send a message to someone who can help you.", 
      "resources placeholder",
-     "Text 'I am' followed by your name to set your name in our database"]
+     "Text 'I am' followed by your name to set your name in our database"];
   //registers a new user
   self.userJoin = function(g, res, client, sender, action)
   {
@@ -30,11 +30,13 @@ var UserActions = function() {
   {
     if (commands.length != commandDescriptions.length){
       console.warn("Commands list and descriptions list don't match.");
-      return
+      return;
     }
     console.log("userCommands");
-    var body  = for (var i = 0; i < command.length; i++){
-      body = commands[i] + ": " commandDescriptions[i];}
+    var body = "";
+    for (var i = 0; i < command.length; i++){
+      body + commands[i] + ": " commandDescriptions[i];
+    }
     var resp  = '<Response><Message><Body>' + body  + '</Body></Message></Response>';
     res.status(200)
         .contentType('text/xml')
