@@ -3,7 +3,7 @@
 //
 var UserActions = function() {
   var self = this;
-  var commands =["near","join","help","map","leave","report","resources","i am"];
+  var commands =["van","near","join","help","map","leave","report","resources","i am"];
 
   //registers a new user
   self.userJoin = function(g, res, client, sender, action)
@@ -27,17 +27,6 @@ var UserActions = function() {
         .contentType('text/xml')
         .send(resp);
   };
-	
-	 //David, gives user number for detox location info// 
-  self.userDetox = function(g, res, client, sender, action)
-  {
-    console.log("userDetox");
-    var body  = "call 410-433-5175 for 24 hour service.";
-    var resp  = '<Response><Message><Body>' + body + '</Body></Message></Response>';
-     res.status(200)
-    .contentType('text/xml')
-    .send(resp);
-  }
   
   self.userLeave= function(g, res, client, sender, action)
   { 
@@ -108,40 +97,43 @@ var UserActions = function() {
       });
     });
   };
-  //tells the user the nearest medical center avaiable for the user
-  //changes to make:!!! "If your're location has changed text near + region number e.g
-  //near2" send a map of the region "resources for your set region below"
-  self.userNear = function(g, res, client, sender, action)
-    {
-      console.log("userNear");
-      var body  = "Has your location changed? Text y(Yes) or n(No)";
-      if (body.toLowerCase() == 'y') {
-      //suggestion - change boolean test to 'y' to newRegion
-      var body  = "Text near + your region number e.g., near2, to receive a list of resources in that region";
-     var newRegion = action[4];
-     self.resourceByregion(newRegion);
-      else
-      //description - if user responds with "n" return a list for the nearest medical center or clinic
-      // avaiable for the user based on user's original location in database
-      var cryptoSender = g.cryptoHelper.encrypt(sender);
-           var findQueryString = "SELECT * FROM users WHERE phone_number = '" + cryptoSender + "'";
-     var findQuery = client.query(findQueryString);
-     //question - what going on in the line below. How is 'row' being used in function(row)
-     findQuery.on('row', function(row) {
-     var region = row.region;
-     //question - should the clsoing bracket and parantheses end at the line above or will that
-     //prevent the function resourceByregion from accesing the variable region in that scope?
-     var body  = "Here are your options: " + resourceByregion; //question - am i correctly calling this function?
-     
-     var resp  = '<Response><Message><Body>' + body + '</Body></Message></Response>';
-     res.status(200)
-     .contentType('text/xml')
-     .send(resp);
-     });
-   };
-  
-  self.resourceByregion = function(region)
+
+  self.userResources = function(g, res, client, sender, action)
   {
+    console.log("userResources");
+    var body  = "Text resources + your region number e.g., resources2, to receive a list of resources in that region";
+    var resourceRegion = action.charAt('resources'.length);
+    if (resourceRegion == '1') {
+      body = 'Union Memorial';
+    } else if (resourceRegion == '2'){
+      body = 'JHMI'
+    };
+    var resp  = '<Response><Message><Body>' + body + '</Body></Message></Response>';
+    res.status(200)
+    .contentType('text/xml')
+    .send(resp);
+  };
+	
+  self.userDetox = function(g, res, client, sender, action)
+  {
+    console.log("userDetox");
+    var body  = "call 410-433-5175 for 24 hour service.";
+    var resp  = '<Response><Message><Body>' + body + '</Body></Message></Response>';
+     res.status(200)
+    .contentType('text/xml')
+    .send(resp);
+  };
+
+  //tells the user the nearest medical center avaiable for the user
+  self.userNear = function(g, res, client, sender, action)
+  {
+    console.log("userNear");
+    var cryptoSender = g.cryptoHelper.encrypt(sender);
+    var findQueryString = "SELECT * FROM users WHERE phone_number = '" + cryptoSender + "'";
+    var findQuery = client.query(findQueryString);
+    findQuery.on('row', function(row) {
+      var region = row.region;
+      var body  = "Here are your options: ";
       if (region == 1) {
         body = "Location: Downtown Baltimore, Mercy \n443-567-0055";
       } else if (region == 2) {
@@ -168,16 +160,7 @@ var UserActions = function() {
           .send(resp);
     });
   };
- //David, gives user number for detox location info// 
-  self.userDetox = function(g, res, client, sender, action)
-  {
-    console.log("userDetox");
-    var body  = "call 410-433-5175 for 24 hour service.";
-    var resp  = '<Response><Message><Body>' + body + '</Body></Message></Response>';
-     res.status(200)
-    .contentType('text/xml')
-    .send(resp);
-  }
+
   //userReport will text the user's message to the admin phone number and will tell the user that it has been sent /
   self.userReport = function(g, res, client, sender, action)
   { 
@@ -201,36 +184,74 @@ var UserActions = function() {
   };
   
   //userNeedles will show you where and when the need fan will show up at certain times/
-  self.userNeedle = function (g,res,client,sender,action)
+  self.userVan = function (g,res,client,sender,action)
   {
-    console.log("userNeedle");
-    var d = new Date();
-    console.log(d);
-    var n = d.getDay();
-    console.log(n);
-    var vanlocation = [];
-  
-    if (n == 1){ 
-      vanlocation = ['Monroe & Ramsey; Greenmount & Preston','Fulton & Baker','Baltimore & Conkling Highlandtown','Milton & Monument'];
-    } else if(n == 2){
-      vanlocation = ['Montford & Biddle; Pratt & Carey','Freemont & Riggs Barclay & 23rd'];
-    } else if(n == 3){
-      vanlocation = ['Baltimore & Conkling (Highlandtown)','Freemont & Laurens'];
-    } else if (n == 4){
-     vanlocation = ['Pontiac & 9th Ave. North & Rosedale','Milton & Monument; Monroe & Ramsey','Baltimore & Gay (The Block)'];
+    console.log("userVan");
+    //EST
+    offset = -5.0
+    clientDate = new Date();
+    utc = clientDate.getTime() + (clientDate.getTimezoneOffset() * 60000);
+    serverDate = new Date(utc + (3600000*offset));
+    console.log(serverDate.toLocaleString());  
+	  
+    var n = serverDate.getDay();
+    var h = serverDate.getHours();
+    var m = serverDate.getMinutes();
+    var vanLocation = 'The Van is not in service right now.';
+    console.log('n:' + n + ', h:' + h + ', m:' + m); 
+    if (n == 1) {
+      if ( ( h == 9 && m >= 30) || ( h == 11 && m <= 30) || (h > 9 && h < 11) )  {
+        vanLocation = 'Van 1 is at Monroe and Ramsey. Van 2 is at Greenmount and Preston until 11:30 AM';
+      } else if (( h == 12 && m >= 45 ) || ( h == 15 && m <= 30) || (h > 12 && h < 15)){
+        vanLocation = 'The van is at Fulton and Baker until 3:30 PM';
+      } else if (( h >= 18) && ( h <= 20)) { 
+        vanLocation = 'The van is at Baltimore and Conkling Highlandtown until 8:00 PM';
+      } else if (( h == 20 && m >= 30) || (h > 20 && h < 22)) {
+        vanLocation = 'The van is at Milton and Monument until 10:00 PM';
+      }
+    } else if (n == 2) {
+      if (( h == 9 && m >= 30) || ( h == 11 && m <= 30) || (h > 9 && h < 11)) {
+        vanLocation = 'Montford and Biddle; Pratt and Carey';
+      } else if (( h == 12 && m >= 45 ) || ( h == 15 && m <= 30) || (h > 12 && h < 15)){
+        vanLocation = 'The van is at Freemont and Riggs Barclay and 23rd until 3:30 PM';
+      }
+    } else if (n == 3) {
+      if (( h >= 18) && ( h <= 20)){
+        vanLocation = 'The van is at Baltimore and Conkling (Highlandtown) until 8:00 PM';
+      } else if (( h == 20 && m >= 30) || (h > 20 && h < 22)) {
+        vanLocation = 'The van is at Freemont and Laurens until 10:00 PM';
+      }
+    } else if (n == 4) {
+      if (( h == 9 && m >= 30) || ( h == 11 && m <= 30) || (h > 9 && h < 11)) {
+         vanLocation = 'Van1 is at Pontiac and 9th Ave. Van 2 is at North and Rosedale until 11:30 AM';
+      } else if (( h == 12 && m >= 45 ) || ( h == 15 && m <= 30) || (h > 12 && h < 15)) {
+         vanLocation = 'Van 1 is at Milton and Monument. Van 2 is at Monroe and Ramsey until 3:30 PM';
+      } else if (h >= 19 && h <= 22 ) {
+         vanLocation = 'The van is at Baltimore and Gay (The Block) until 10:00 PM'; 
+      }
     } else if (n == 5){
-      vanlocation = ['Park Heights & Spaulding; North & Gay','Fulton & Baker','Montford & Biddle','Monroe & Ramsey'];
+      if (( h == 9 && m >= 30) || ( h == 11 && m <= 30) || (h > 9 && h < 11)) {
+        vanLocation = 'Van 1 is at Park Heights and Spaulding. Van 2 is at North and Gay until 11:30 AM';
+      } else if (( h == 12 && m >= 45 ) || ( h == 15 && m <= 30) || (h > 12 && h < 15)) {
+        vanLocation ='The van is at Fulton and Baker until 3:30 PM';
+      } else if (h >= 18 && h <= 20 ) {
+        vanLocation = 'The van is at Montford and Biddle until 8:00 PM';
+      } else if (( h == 20 && m >= 30) || (h > 20 && h < 22)) {
+        vanLocation = 'The van is at Monroe and Ramsey until 10:00 PM';
+      }
     } else if (n == 6){
-      vanlocation = ['Fremont and Riggs'];
+      if (h >= 12 && h <= 16) {
+        vanLocation= 'The van is at Fremont and Riggs until 4:00 PM';
+      }
     }
 
+
     //send message
-    var body = ' These are your current needle van location' + vanlocation.join(', ');
-    console.log(body);
+    var body = vanLocation;
     var resp  = '<Response><Message><Body>' + body  + '</Body></Message></Response>';
     res.status(200)
-        .contentType('text/xml')
-        .send(resp);
+          .contentType('text/xml')
+          .send(resp);
 
   };
  
@@ -238,24 +259,23 @@ var UserActions = function() {
   {
     if (body.toLowerCase() == "map") {
       self.userMap(g, res, client, sender, body);
-    } 
-    }else if (body >= '0' && body <= '9') {
+    } else if (body >= '0' && body <= '9') {
       self.userSetRegion(g, res, client, sender, body);
     } else if (body.toLowerCase().startsWith('i am')) {
       self.userSetName(g, res, client, sender, body);
     } else if (body.toLowerCase().startsWith('resources')) {
       self.userResources(g, res, client, sender, body);
-    }	else if (body.toLowerCase().startsWith('near') {
-      self.resourceByregion(body[4]);
+    } else if (body.toLowerCase() == 'near') {
+      self.userNear(g, res, client, sender, body);
     } else if (body.toLowerCase().startsWith('report')) {
       self.userReport(g, res, client, sender, body);
     } else if (body.toLowerCase() == 'leave') {
       self.userLeave(g, res, client, sender, body);
-    } else if (body.toLowerCase() == 'needle') {
-      self.userNeedle(g, res, client, sender, body);
+    } else if (body.toLowerCase() == 'van') {
+      self.userVan(g, res, client, sender, body);
     } else if (body.toLowerCase() == 'commands') {
       self.userHelp(g, res, client, sender, body);
-    } else if (body.toLowerCase()=='detox'){
+    } else if (body.toLowerCase() == 'detox') {
       self.userDetox(g, res, client, sender, body);
     } else {
       self.userJoin(g, res, client, sender, body);
