@@ -262,7 +262,23 @@ var UserActions = function() {
           .send(resp);
 
   };
- 
+ self.setZipCode = function(g, res, client, sender, body){
+	 
+	 
+ };
+ self.isZipCode = function(body)
+  {
+    if (string.length !== 5) {
+      return false;
+    }
+    try {
+      Integer.parseInt(input);
+    } catch(e) {
+      return false;
+    }
+    return true;
+  };
+	
   self.doUserAction = function(g, res, client, sender, body)
   {
     if (body.toLowerCase() == "map") {
@@ -285,7 +301,9 @@ var UserActions = function() {
       self.userHelp(g, res, client, sender, body);
     } else if (body.toLowerCase() == 'detox') {
       self.userDetox(g, res, client, sender, body);
-    } else {
+    }  else if (self.isZipCode(body)){
+      self.setZipCode(g, res, client, sender, body);
+    }  else {
       self.userJoin(g, res, client, sender, body);
     }
   };
