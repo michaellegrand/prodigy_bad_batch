@@ -263,8 +263,23 @@ var UserActions = function() {
 
   };
  self.setZipCode = function(g, res, client, sender, body){
-	 
-	 
+ {	 
+    var zipCode = interger parselnt (body);
+    var matchedRegion;
+    for( var i = 0; i < regionZips.length;i++){
+      var  zips= regionZips[i];
+      for( var j = 0; j < zips.length;j++){
+        var zip=zips [j];
+	if (zip== ZipCode){
+	  matchedRegion=i+1);
+	  break
+	}
+     }
+     if (matchedRegion == undefined){
+       var body = ("Sorry Bad Batch is not located in this area, If you would like it to be please email badbatchalert@gmail.com")
+    } else {
+      self.setregion(matchedRegion)
+    }
  };
  self.isZipCode = function(body)
   {
