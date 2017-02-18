@@ -1,7 +1,7 @@
 var UserActions = function() 
 {
   var self = this;
-  var commands = ["van","near","join","commands","map","leave","report", "i am"];
+  var commands = ["van","near","join","commands","map","leave","report", "i am","Add"];
   var commandDescriptions = ["Tells you where the Baltimore Needle Exchange Van is at any time.",
    "Tells you where the nearest available medical care center is.", 
    "Registers you with the Bad Batch alert service.",
@@ -9,7 +9,8 @@ var UserActions = function()
    "Shows you the Region Map, which has numbers that correspond to areas in the city. You can then text the number of the area in which you live, which determines the kind of overdose alerts you will get.",
    "Removes you from the Bad Batch alert service. You can rejoin at any time by texting this number",
    "Text 'report' followed by your message to anonymously send a message to someone who can help you.", 
-   "Text 'I am' followed by your name to set your name in our database"];
+   "Text 'I am' followed by your name to set your name in our database.",
+   "'Add'Lets the user add multiple Region to their region choice"];
 
    var regionZips = [ [21217, 21211],
                       [21211, 21218, 21210], 
@@ -78,16 +79,24 @@ var UserActions = function()
         .send(resp);
   };
 
-  self.userSetRegion = function(g, res, client, sender, action)
+  self.userAddSetRegions = function(g, res, client, sender, action)
   {
     var cryptoSender = g.cryptoHelper.encrypt(sender);
-    console.log("userSetRegion");
-    var region = parseInt(action);
+    console.log("userAddSetRegions");
+    var regions = action;
     var findQueryString = "SELECT FROM users WHERE phone_number = '" + cryptoSender + "'";
     var findQuery = client.query(findQueryString);
     findQuery.on('row', function(row) {
       console.log(JSON.stringify(row));
-      //if they texted us a number. Set it as their region.
+    var regions = row.regions;
+	    var regionsArray = regions.split(',');
+	    var is Alreadythere = false;
+	    for (var i = 0; 1 < regionsArray.length; i++) {
+	   
+	    
+	    
+	    
+	    //if they texted us a number. Set it as their region.
       var insertQueryString = "UPDATE users SET region = " + region + " WHERE phone_number = '" + cryptoSender + "'";
       var insertQuery = client.query(insertQueryString);
       insertQuery.on('end', function() {
@@ -96,6 +105,7 @@ var UserActions = function()
         res.status(200)
         .contentType('text/xml')
         .send(resp);
+      function userAddRegion 
       });
     });
   };
