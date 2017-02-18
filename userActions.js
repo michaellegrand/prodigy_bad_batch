@@ -1,27 +1,51 @@
-// 
-// A collection of functions that the user can initiate by texting different messages.*/
-//
-var UserActions = function() {
+var UserActions = function() 
+{
   var self = this;
-  var commands =["van","near","join","help","map","leave","report","resources","i am"];
+  var commands = ["van","near","join","commands","map","leave","report", "i am"];
+  var commandDescriptions = ["Tells you where the Baltimore Needle Exchange Van is at any time.",
+   "Tells you where the nearest available medical care center is.", 
+   "Registers you with the Bad Batch alert service.",
+   "Shows you a list of commands you can send.",
+   "Shows you the Region Map, which has numbers that correspond to areas in the city. You can then text the number of the area in which you live, which determines the kind of overdose alerts you will get.",
+   "Removes you from the Bad Batch alert service. You can rejoin at any time by texting this number",
+   "Text 'report' followed by your message to anonymously send a message to someone who can help you.", 
+   "Text 'I am' followed by your name to set your name in our database"];
 
+   var regionZips = [ [21217, 21211],
+                      [21211, 21218, 21210], 
+                      [21213, 21202, 21206],
+                      [21223,21229, 21230],
+                      [21231, 21202, 21201, 21230],
+                      [21224, 21205],
+                      [21224,21222],
+                      [21225, 21227, 21230],
+                      [21225, 21226]
+                    ];
+	
   //registers a new user
   self.userJoin = function(g, res, client, sender, action)
   {
     console.log("userJoin");
-    var body  = "Thank you for registering. Text the word 'map' to set your location. Find out more at BadBatchAlert.com";
+    var body  = "Thank you for registering. Text the word 'map' to set your location. Text the word 'commands' to see a list of commands you can send. Find out more at BadBatchAlert.com";
     var media = "http://www.mike-legrand.com/BadBatchAlert/logoSmall150.png";
     var resp  = '<Response><Message><Body>' + body + '</Body><Media>' + media + '</Media></Message></Response>';
     res.status(200)
       .contentType('text/xml')
       .send(resp);
   };
-	
+  
   //list commands that a user can send
-  self.userHelp = function(g, res, client, sender, action)
+  self.userCommands = function(g, res, client, sender, action)
   {
-    console.log("userHelp");
-    var body  = commands.join(", ");
+    if (commands.length != commandDescriptions.length){
+      console.warn("Commands list and descriptions list don't match.");
+      return;
+    }
+    console.log("userCommands");
+    var body = "";
+    for (var i = 0; i < commands.length; i++){
+     body = body + commands[i] + ": " + commandDescriptions[i] + '\n\n';
+    }
     var resp  = '<Response><Message><Body>' + body  + '</Body></Message></Response>';
     res.status(200)
         .contentType('text/xml')
@@ -135,23 +159,23 @@ var UserActions = function() {
       var region = row.region;
       var body  = "Here are your options: ";
       if (region == 1) {
-        body = "Location: Downtown Baltimore, Mercy \n443-567-0055";
+        body = "Mercy Medical Center \n345 St. Paul Place \nBaltimore, MD 21202 (410) 332-9000";
       } else if (region == 2) {
-        body = "Location: Downtown Baltimore, Johns Hopkinks \n207-456-9887";
+        body = "Union Memorial Hospital \n201 E University Pkwy,\n Baltimore, MD 21218 (410) 554-2000";
       } else if (region == 3) {
-        body = "Location: Downtown Baltimore, St. Benny Hospital \n410-761-9081";
+        body = "Greater Baltimore Medical Center \n6701 N Charles St, \nTowson, MD 21204 (443) 849-2000";
       } else if (region == 4) {
-        body = "Location: Downtown Baltimore, Jonhny Long Center \n207-456-9887";
+        body = "University of Maryland Rehabilitation and Orthopaedic Institute \n2200 Kernan Dr, \nBaltimore MD, 21207 (410) 448-2500";
       } else if (region == 5) {
-        body = "Location: Downtown Baltimore, Hospital1 \n207-666-9887";
+        body = "UM Medical Center ER \n22 S. Greene Street, \nBaltimore MD, 21201 ((410) 328-8667)";
       } else if (region == 6) { 
-        body = "Location: Downtown Baltimore, Hospital2 \n207-999-9887";
+        body = "UMMC Midtown Campus ER \n827 Linden Ave, \nBaltimore MD, 21201 ((410) 255-8000)";
       } else if (region == 7) {
-        body = "Location: Downtown Baltimore, Hospital3 \n207-777-9887";
+        body = "ChoiceOne Urgent Care Dundalk \n1730 Merritt Blvd, \nBaltimore MD, 20222 ((410) 650-4731)";
       } else if (region == 8) {
-        body = "Location: Downtown Baltimore, Hospital4 \n207-000-9887";
+        body = "University of Maryland Faculty Physicians Inc \n5890 Waterloo Rd, \nColumbia MD, 21045 ((667) 214-2100)";
       } else if (region == 9) {
-        body = "Location: Downtown Baltimore, Hospital5 \n207-222-9887";
+        body = "UM Baltimore Washington Medical Center ER \n301 Hospital Drive, \nBaltimore MD, 21060 ((410) 787-4000)";
       }
     
       var resp  = '<Response><Message><Body>' + body  + '</Body></Message></Response>';
@@ -254,11 +278,55 @@ var UserActions = function() {
           .send(resp);
 
   };
+
+  self.userSetZipCode = function(g, res, client, sender, body) 
+  {
+    console.log("userVan");
+    var zipCode = parseInt(body);
+    var matchedRegion
+    for (var i = 0; i < regionZips.length; i++) {
+      var zips = regionZips[i];
+      for (var j = 0; j < zips.length; j++) {
+        var zip = zips[j];
+        if (zip == zipCode) {
+          matchedRegion = i + 1;
+          break;
+        }
+      }
+    }
+    if (matchedRegion === undefined) {
+      var body = "Sorry, this service is only available in the Baltimore metro area. /n If you'd like to have your area added to the Bad Batch Alert Serivce, send an email to badbatchalert@gmail.com."
+      var resp  = '<Response><Message><Body>' + body  + '</Body></Message></Response>';
+      res.status(200)
+            .contentType('text/xml')
+            .send(resp);
+    }
+    else {
+      self.userSetRegion(g, res, client, sender, ""+matchedRegion)
+    }
+  };
+
+  self.isZipCode = function(body)
+  {
+    if (body.length !== 5) {
+      console.log('not 5');
+      return false;
+    }
+    try {
+      parseInt(body);
+    } catch(e) {
+      console.log('not int');
+      return false;
+    }
+    return true;
+  };
  
   self.doUserAction = function(g, res, client, sender, body)
   {
     if (body.toLowerCase() == "map") {
       self.userMap(g, res, client, sender, body);
+    } else if (self.isZipCode(body)) {
+      self.userSetZipCode(g, res, client, sender,body);
     } else if (body >= '0' && body <= '9') {
       self.userSetRegion(g, res, client, sender, body);
     } else if (body.toLowerCase().startsWith('i am')) {
@@ -274,7 +342,7 @@ var UserActions = function() {
     } else if (body.toLowerCase() == 'van') {
       self.userVan(g, res, client, sender, body);
     } else if (body.toLowerCase() == 'commands') {
-      self.userHelp(g, res, client, sender, body);
+      self.userCommands(g, res, client, sender, body);
     } else if (body.toLowerCase() == 'detox') {
       self.userDetox(g, res, client, sender, body);
     } else {
@@ -283,6 +351,5 @@ var UserActions = function() {
   };
 
 };
-
 
 module.exports = UserActions;
