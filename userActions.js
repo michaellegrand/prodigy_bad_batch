@@ -1,27 +1,53 @@
-// 
-// A collection of functions that the user can initiate by texting different messages.*/
-//
-var UserActions = function() {
+var UserActions = function() 
+{
   var self = this;
-  var commands =["van","near","join","help","map","leave","report","resources","i am"];
+  var commands = ["van","near","join","help","map", "add", "leave","report", "i am"];
+  var commandDescriptions = ["Tells you where the Baltimore Needle Exchange Van is at any time.",
+   "Tells you where the nearest available medical care center is.", 
+   "Registers you with the Bad Batch alert service.",
+   "Shows you a list of commands you can send.",
+   "Shows you the Region Map, which has numbers that correspond to areas in the city. You can then text the number of the area in which you live, which determines the kind of overdose alerts you will get.",
+   "Text 'add' followed by your region number to get alerts in multiple regions",
+   "Removes you from the Bad Batch alert service. You can rejoin at any time by texting this number",
+   "Text 'report' followed by your message to anonymously send a message to someone who can help you.", 
+   "Text 'I am' followed by your name to set your name in our database"];
 
+   var regionZips = [ 
+   /* region 1  */    [21217, 21211],
+   /* region 2  */    [21211, 21218, 21210], 
+   /* region 3  */    [21213, 21202, 21206],
+   /* region 4  */    [21223,21229, 21230],
+   /* region 5  */    [21231, 21202, 21201, 21230],
+   /* region 6  */    [21224, 21205],
+   /* region 7  */    [21224,21222],
+   /* region 8  */    [21225, 21227, 21230],
+   /* region 9  */    [21225, 21226]
+                    ];
+	
   //registers a new user
   self.userJoin = function(g, res, client, sender, action)
   {
     console.log("userJoin");
-    var body  = "Thank you for registering. Text the word 'map' to set your location. Find out more at BadBatchAlert.com";
+    var body  = "Thank you for registering. Text the word 'map' to set your location. Text the word 'help' to see a list of commands you can send. Find out more at BadBatchAlert.com";
     var media = "http://www.mike-legrand.com/BadBatchAlert/logoSmall150.png";
     var resp  = '<Response><Message><Body>' + body + '</Body><Media>' + media + '</Media></Message></Response>';
     res.status(200)
       .contentType('text/xml')
       .send(resp);
   };
-	
+  
   //list commands that a user can send
   self.userHelp = function(g, res, client, sender, action)
   {
     console.log("userHelp");
-    var body  = commands.join(", ");
+    if (commands.length != commandDescriptions.length){
+      console.warn("Commands list and descriptions list don't match.");
+      return;
+    }
+    var body = "";
+    for (var i = 0; i < commands.length; i++){
+     body = body + commands[i] + ": " + commandDescriptions[i] + '\n\n';
+    }
     var resp  = '<Response><Message><Body>' + body  + '</Body></Message></Response>';
     res.status(200)
         .contentType('text/xml')
@@ -56,18 +82,71 @@ var UserActions = function() {
 
   self.userSetRegion = function(g, res, client, sender, action)
   {
-    var cryptoSender = g.cryptoHelper.encrypt(sender);
     console.log("userSetRegion");
-    var region = parseInt(action);
-    var findQueryString = "SELECT FROM users WHERE phone_number = '" + cryptoSender + "'";
+    var cryptoSender = g.cryptoHelper.encrypt(sender);
+    var region = action;
+    var findQueryString = "SELECT * FROM users WHERE phone_number = '" + cryptoSender + "'";
     var findQuery = client.query(findQueryString);
     findQuery.on('row', function(row) {
       console.log(JSON.stringify(row));
       //if they texted us a number. Set it as their region.
-      var insertQueryString = "UPDATE users SET region = " + region + " WHERE phone_number = '" + cryptoSender + "'";
+      var insertQueryString = "UPDATE users SET regions = '" + region + "' WHERE phone_number = '" + cryptoSender + "'";
       var insertQuery = client.query(insertQueryString);
       insertQuery.on('end', function() {
-        var body = "👍 You are all set to receive alerts in region " + region;
+        var body = "👍 You are all set to receive alerts in region " + region + ".\nTo add more regions, text the word 'add' followed by a region number.";
+        var resp = '<Response><Message><Body>' + body + '</Body></Message></Response>';
+        res.status(200)
+        .contentType('text/xml')
+        .send(resp);
+      });
+    });
+  };
+
+  self.userAddRegion = function(g, res, client, sender, action)
+  {
+    console.log("userAddRegion");
+    var cryptoSender = g.cryptoHelper.encrypt(sender);
+    var region = action.charAt('add'.length + 1);
+    console.log('region = ' + region);
+    var findQueryString = "SELECT * FROM users WHERE phone_number = '" + cryptoSender + "'";
+    var findQuery = client.query(findQueryString);
+    findQuery.on('row', function(row) {
+      console.log(JSON.stringify(row));
+      //if they texted us a number. Set it as their region.
+      var regions = row.regions?row.regions:'';
+      console.log('regions = ' + regions);
+      if (regions.length == 0) {
+        regionsArray = [];
+      }  else {
+        regionsArray = regions.split(', ');
+      }
+
+      var alreadyFound = false;
+      console.log('checking for duplicates');
+      for (var i = 0; i < regionsArray.length; i++) {
+        if (regionsArray[i] == region) {
+          alreadyFound = true;
+          break;
+        }
+      }
+      if (alreadyFound) {
+        console.log('already found this region in your list');
+        var body = "👍 You are all set to receive alerts in these regions " + regions;
+        var resp = '<Response><Message><Body>' + body + '</Body></Message></Response>';
+        res.status(200)
+        .contentType('text/xml')
+        .send(resp);
+        return;
+      }
+
+      regionsArray.push(region);
+      regions = regionsArray.length > 1 ?  regionsArray.join(', ') : regionsArray.join('');
+      console.log ('regions after =' + regions);
+      var insertQueryString = "UPDATE users SET regions = '" + regions + "' WHERE phone_number = '" + cryptoSender + "'";
+      console.log(insertQueryString);
+      var insertQuery = client.query(insertQueryString);
+      insertQuery.on('end', function() {
+        var body = "👍 You are all set to receive alerts in these regions " + regions;
         var resp = '<Response><Message><Body>' + body + '</Body></Message></Response>';
         res.status(200)
         .contentType('text/xml')
@@ -97,22 +176,6 @@ var UserActions = function() {
       });
     });
   };
-
-  self.userResources = function(g, res, client, sender, action)
-  {
-    console.log("userResources");
-    var body  = "Text resources + your region number e.g., resources2, to receive a list of resources in that region";
-    var resourceRegion = action.charAt('resources'.length);
-    if (resourceRegion == '1') {
-      body = 'Union Memorial';
-    } else if (resourceRegion == '2'){
-      body = 'JHMI'
-    };
-    var resp  = '<Response><Message><Body>' + body + '</Body></Message></Response>';
-    res.status(200)
-    .contentType('text/xml')
-    .send(resp);
-  };
 	
   self.userDetox = function(g, res, client, sender, action)
   {
@@ -132,26 +195,33 @@ var UserActions = function() {
     var findQueryString = "SELECT * FROM users WHERE phone_number = '" + cryptoSender + "'";
     var findQuery = client.query(findQueryString);
     findQuery.on('row', function(row) {
-      var region = row.region;
+      var regions = row.regions; 
       var body  = "Here are your options: ";
-      if (region == 1) {
-        body = "Location: Downtown Baltimore, Mercy \n443-567-0055";
-      } else if (region == 2) {
-        body = "Location: Downtown Baltimore, Johns Hopkinks \n207-456-9887";
-      } else if (region == 3) {
-        body = "Location: Downtown Baltimore, St. Benny Hospital \n410-761-9081";
-      } else if (region == 4) {
-        body = "Location: Downtown Baltimore, Jonhny Long Center \n207-456-9887";
-      } else if (region == 5) {
-        body = "Location: Downtown Baltimore, Hospital1 \n207-666-9887";
-      } else if (region == 6) { 
-        body = "Location: Downtown Baltimore, Hospital2 \n207-999-9887";
-      } else if (region == 7) {
-        body = "Location: Downtown Baltimore, Hospital3 \n207-777-9887";
-      } else if (region == 8) {
-        body = "Location: Downtown Baltimore, Hospital4 \n207-000-9887";
-      } else if (region == 9) {
-        body = "Location: Downtown Baltimore, Hospital5 \n207-222-9887";
+      regions = regions ? regions:'';
+      var regionsArray = regions.split(', ');
+      for (var i = 0; i < regionsArray.length; i++) {
+        if (i != 0) body = body + '\n\n';
+        var region = regionsArray[i];
+        if (region == 1) {
+          body += "Region 1:\n Mercy Medical Center \n345 St. Paul Place \nBaltimore, MD 21202 (410) 332-9000";
+        } else if (region == 2) {
+          body += "Regions 2:\n Union Memorial Hospital \n201 E University Pkwy,\n Baltimore, MD 21218 (410) 554-2000";
+        } else if (region == 3) {
+          body += "Region 3:\n Greater Baltimore Medical Center \n6701 N Charles St, \nTowson, MD 21204 (443) 849-2000";
+        } else if (region == 4) {
+          body += "Region 4:\n University of Maryland Rehabilitation and Orthopaedic Institute \n2200 Kernan Dr, \nBaltimore MD, 21207 (410) 448-2500";
+        } else if (region == 5) {
+          body += "Region 5:\n UM Medical Center ER \n22 S. Greene Street, \nBaltimore MD, 21201 ((410) 328-8667)";
+        } else if (region == 6) { 
+          body += "Region 6:\n UMMC Midtown Campus ER \n827 Linden Ave, \nBaltimore MD, 21201 ((410) 255-8000)";
+        } else if (region == 7) {
+          body += "Region 7:\n ChoiceOne Urgent Care Dundalk \n1730 Merritt Blvd, \nBaltimore MD, 20222 ((410) 650-4731)";
+        } else if (region == 8) {
+          body += "Region 8:\n University of Maryland Faculty Physicians Inc \n5890 Waterloo Rd, \nColumbia MD, 21045 ((667) 214-2100)";
+        } else if (region == 9) {
+          body += "Region 9:\n UM Baltimore Washington Medical Center ER \n301 Hospital Drive, \nBaltimore MD, 21060 ((410) 787-4000)";
+        }
+
       }
     
       var resp  = '<Response><Message><Body>' + body  + '</Body></Message></Response>';
@@ -254,28 +324,65 @@ var UserActions = function() {
           .send(resp);
 
   };
+
+  self.userSetZipCode = function(g, res, client, sender, body) 
+  {
+    console.log("userSetZipCode");
+    var zipCode = parseInt(body);
+    var matchedRegionsArray = [];
+    for (var i = 0; i < regionZips.length; i++) {
+      var zips = regionZips[i];
+      for (var j = 0; j < zips.length; j++) {
+        var zip = zips[j];
+        if (zip == zipCode) {
+          matchedRegionsArray.push(i + 1);
+        }
+      }
+    }
+    if (matchedRegionsArray.length === 0) {
+      var body = "Sorry, this service is only available in the Baltimore metro area. If you'd like to have your area added to the Bad Batch Alert Serivce, send an email to badbatchalert@gmail.com."
+      var resp  = '<Response><Message><Body>' + body  + '</Body></Message></Response>';
+      res.status(200)
+            .contentType('text/xml')
+            .send(resp);
+    }
+    else {
+      var regions = matchedRegionsArray.join(', '); 
+      self.userSetRegion(g, res, client, sender, regions)
+    }
+  };
+
+  self.isZipCode = function(body)
+  {
+    if (body.length !== 5) return false;
+    if (isNaN(body)) return false;
+    return true;
+  };
  
   self.doUserAction = function(g, res, client, sender, body)
   {
-    if (body.toLowerCase() == "map") {
+    var command = body.toLowerCase();
+    if (command == "map") {
       self.userMap(g, res, client, sender, body);
-    } else if (body >= '0' && body <= '9') {
+    } else if (self.isZipCode(body)) {
+      self.userSetZipCode(g, res, client, sender, body);
+    } else if (body.length == 1 && body >= '0' && body <= '9') {
       self.userSetRegion(g, res, client, sender, body);
-    } else if (body.toLowerCase().startsWith('i am')) {
+    } else if (command.startsWith('add')) {
+      self.userAddRegion(g, res, client, sender, body);
+    } else if (command.startsWith('i am')) {
       self.userSetName(g, res, client, sender, body);
-    } else if (body.toLowerCase().startsWith('resources')) {
-      self.userResources(g, res, client, sender, body);
-    } else if (body.toLowerCase() == 'near') {
+    } else if (command == 'near') {
       self.userNear(g, res, client, sender, body);
-    } else if (body.toLowerCase().startsWith('report')) {
+    } else if (command.startsWith('report')) {
       self.userReport(g, res, client, sender, body);
-    } else if (body.toLowerCase() == 'leave') {
+    } else if (command == 'leave') {
       self.userLeave(g, res, client, sender, body);
-    } else if (body.toLowerCase() == 'van') {
+    } else if (command == 'van') {
       self.userVan(g, res, client, sender, body);
-    } else if (body.toLowerCase() == 'commands') {
+    } else if (command == 'help') {
       self.userHelp(g, res, client, sender, body);
-    } else if (body.toLowerCase() == 'detox') {
+    } else if (command == 'detox') {
       self.userDetox(g, res, client, sender, body);
     } else {
       self.userJoin(g, res, client, sender, body);
