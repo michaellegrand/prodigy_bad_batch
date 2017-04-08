@@ -36,10 +36,23 @@ var VoiceActions = function() {
                 };
 
     var voiceVan = {question2:"Please press two for more options", type:'number'}
-           answer: ["van",
-                    "report",
-                    "info",
-                    "leave" ]
+           answer: [
+            "On Monday from 9:30 AM to 11:30 AM needle exchange van 1 is at Monroe and Ramsey and van 2 is at Greenmount and Preston.",
+            "On Monday from 12:45 PM to 3:30 PM the needle exchange van is at Fulton and Baker.",
+            "On Monday from 6 PM to 8 PM the needle exchange van is at Baltimore and Conkling in Highlandtown.",
+            "On Tuesday from 9:30 AM to 11:30, needle exchange van 1 is at Montford and Biddle, and van 2 is at Pratt and Carey.",
+            "On Monday from 12:45 PM to 3:30 PM needle exchange van 1 is at Freemont and Riggs and van 2 is at Barclay and 23rd.",
+            "On Wednesday from 6:00 PM to 8:00 PM the needle exchange van is at Baltimore and Conkling in Highlandtown.",
+            "On Wednesday from 8:30 PM to 10:00 PM the needle exchange van is at Freemont and Laurens.",
+            "On Thursday from 9:30 AM to 11:30 AM needle exchange van 1 is at Pontiac and 9th Ave. and van 2 is at North and Rosedale.",
+            "On Thursday from 12:45 PM to 3:30 PM needle exchange van 1 is at Milton and Monument and van 2 is at Monroe and Ramsey.",
+            "On Thursday from 7:00 PM to 10:00 PM the needle exchange van is at Baltimore and Gay.",
+            "On Friday from 9:30 AM to 11:30 AM needle exchange van 1 is at Park Heights and Spaulding and van 2 is at North and Gay.",
+            "On Friday from 12:45 PM to 3:30 PM the needle exchange van is at Fulton and Baker.",
+            "On Friday from 6:00 PM to 8:00 PM the needle exchange van is at Montford and Biddle.",
+            "On Friday from 8:30 PM to 10:00 PM the needle exchange van is at Monroe and Ramsey.",
+            "On Saturday from 12:00 PM to 4:00PM the needle exchange van is at Fremont and Riggs."
+            ]
                     };
 
     var _count = 0;
