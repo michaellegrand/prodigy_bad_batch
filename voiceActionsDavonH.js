@@ -28,7 +28,7 @@ var VoiceActions = function() {
     ];
 
      //This method controls 1 and 2 of nextcall script, does the 1(help command and 2(van command)
-     var voiceHelp = {question1:"Please press one for more options", type:'number'}
+     var voiceHelp = {question1:"Thanks for calling Bad Batch Alert service. Press 1 or say ‘help’ for a list of options.", type:'number'}
            answer: ["van",
                     "report",
                     "info",
