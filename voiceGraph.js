@@ -1,20 +1,59 @@
-{
-    "Id": 1,
-    "Label": "A",
-    "Child": [
+var voiceGraph = {
+    "id": "registration",
+    "children": [
         {
-            "Id": 2,
-            "Label": "B",
-            "Child": [
+            "id": "welcome",
+            "children": [
                 {
-                    "Id": 5,
-                    "Label": "E"
-                }, {
-                    "Id": 6,
-                    "Label": "E"
-                }, {
-                    "Id": 7,
-                    "Label": "E"
+                    "id": "help",
+                    "children": [
+                        {
+                            "id":"van"
+                            "children": [
+                                {
+                                    "id": "help"
+                                }
+                            ]
+                        }
+                        {
+                            "id":"report"
+                            "children": [
+                                {
+                                    "id": "help"
+                                }
+                            ]
+                        },
+                        {
+                        
+                            "id":"info"
+                            "children": [
+                                {
+                                    "id": "help"
+                                }
+                            ]
+                        },
+                        {
+                            "id":"leave"
+                            "children": [
+                                {
+                                    "id" : "confirmLeave"
+                                    "children" :[
+                                        {
+                                            "id" : "help"
+                                        }           
+                                    ]
+                                },
+                                {
+                                    "id" : "confirmCancel" 
+                                    "children": [
+                                        {
+                                            "id": "help"
+                                        }
+                                    ]  
+                                }  
+                            ]
+                        }
+                    ]
                 }
             ]
         }, {
@@ -34,4 +73,4 @@
             ]
         }
     ]
-}
+};
