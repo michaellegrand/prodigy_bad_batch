@@ -56,19 +56,15 @@ var voiceGraph = {
                     ]
                 }
             ]
-        }, {
-            "Id": 3,
-            "Label": "C"
-        }, {
-            "Id": 4,
-            "Label": "D",
-            "Child": [
+        }, 
+        {
+            "Id": "registerZip",
+            "children": [
                 {
-                    "Id": 8,
-                    "Label": "H"
-                }, {
-                    "Id": 9,
-                    "Label": "I"
+                    "Id": "correctZip",
+                }, 
+                {
+                    "Id": "wrongZip",
                 }
             ]
         }
