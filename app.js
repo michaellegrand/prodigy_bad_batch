@@ -60,6 +60,21 @@ app.post('/call/receive', function (req, res) {
     .send(resp.toString());
 });
 // [END receive_call]
+function regionCount(res, client, sender, body){
+
+  var findQuery = client.query(findQueryString);
+    findQuery.on('row', function(row) {
+      console.log(JSON.stringify(row));
+        mediaUrl: "http://www.mike-legrand.com/BadBatchAlert/uplift.jpg"  
+      }, function (err) {
+        if (err) {
+          return next(err);
+        }
+      });
+    }).on('error', function() {
+      console.log("nobody in region " + region + " to alert.")
+});
+};
 
 // [START receive_sms]
 app.post('/sms/receive', bodyParser, function (req, res) {
