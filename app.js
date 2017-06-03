@@ -205,6 +205,8 @@ app.post('/webadmin/receive', function (req, res) {
 //regionCount (get users per region)
 app.post('/webadmin/getuserinregion', function (req, res) {
   
+  
+ var userCount = 0;
  var body = "";
  req.on('data', function (chunk) {
    body += chunk;
@@ -212,28 +214,28 @@ app.post('/webadmin/getuserinregion', function (req, res) {
  req.on('end', function () {
   console.log(body);
   var jsonBody = JSON.parse(body);
-  var regionNumber = jsonBody.regionNumber;
-  var findQueryString = "SELECT * FROM users WHERE region = " + regionNumber;  
+  var regionNumbers = jsonBody.regionNumbers;
+  var findQueryString = "SELECT * FROM users";  
   var findQuery = webAdminClient.query(findQueryString);
   findQuery.on('row', function(row) {
-    console.log("found row");
-    console.log(JSON.stringify(row));
-    var payload = {
-      err:null,
-      token:"authtoken",
-    }
-    res.status(200)
-      .contentType('text/json')
-      .send(payload);
+    var regionString = row.regions;
+    var regionArray = regionString.split(",");
+    for (var i = 0; i < regionArray.length; i++){
+      var region = regionArray[i];
+      for( var j = 0; j < regionNumbers.length; j++){
+        if(regionNumbers[j] == region){
+          userCount++;
+           return;
+        }//if's
+      }//forloop2's
+    }//forloop1's
+    
   });
 
   findQuery.on('end', function(result) {
-    console.log('end got called' + result);
-    if (result.rowCount > 0) return;
-    console.log("did not find user/pass")
+    console.log("Completed.")
     var payload = {
-      err:1,
-      tonek:null
+      userCount:userCount
     }
     res.status(200)
       .contentType('text/json')
