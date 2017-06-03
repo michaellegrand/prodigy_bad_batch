@@ -25,73 +25,133 @@ var bodyParser    = require('body-parser').urlencoded({extended: false});
 var CryptoHelper  = require('./cryptoHelper');
 var AdminActions  = require('./adminActions');
 var UserActions   = require('./userActions');
+var VoiceActions  = require('./voiceActions');
+var WebAdmin      = require('./webAdmin');
+
 
 var app      = express();
+
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 
 var G = {
   twilio:           twilio,
   adminActions:     new AdminActions(),
   userActions:      new UserActions(),
+  voiceActions:     new VoiceActions(),
   cryptoHelper:     new CryptoHelper(),
 };
 
 
-function doAction(res, client, sender, body)
+//Trying global clients instead of 1 per message.
+pg.defaults.ssl = true;
+var appClient;
+pg.connect(process.env.DATABASE_URL, function(err, client) {
+  if (err) throw err;
+    console.log('App client Connected to db');
+    appClient = client;
+});
+
+var userClient;
+pg.connect(process.env.DATABASE_URL, function(err, client) {
+  if (err) throw err;
+    console.log('User client Connected to db');
+    userClient = client;
+});
+
+var historyClient;
+pg.connect(process.env.DATABASE_URL, function(err, client) {
+  if (err) throw err;
+    console.log('History client Connected to db');
+    historyClient = client;
+});
+
+var webAdminClient;
+pg.connect(process.env.DATABASE_URL, function(err, client) {
+  if (err) throw err;
+    console.log('WebAdmin client Connected to db');
+    webAdminClient = client;
+});
+
+
+function doAction(res, sender, body)
 {
-  var messageHandled = G.adminActions.doAdminAction(G, res, client, sender, body);
-  if (!messageHandled) {
-    G.userActions.doUserAction(G, res, client, sender, body);
-  }
+  var messageHandled = G.adminActions.doAdminAction(G, res, userClient, sender, body);
+  if (messageHandled) return;
+
+  insertUser(res, sender, body, function() {
+    storeMessageHistory(G, res, userClient, sender, body, function(messageHistory) {
+      G.userActions.doUserAction(G, res, userClient, sender, body, messageHistory);
+    });
+  });
+}
+
+function insertUser(res, sender, body, callback)  {
+
+  var cryptoSender = G.cryptoHelper.encrypt(sender);
+  var date = new Date();
+  var timestamp = date.toGMTString();
+  var insertQueryString = "INSERT INTO users (phone_number, message_body, timestamp) VALUES ('" + cryptoSender + "', '" + body + "', '" + timestamp + "')";
+  var insertQuery = appClient.query(insertQueryString);
+  insertQuery.on('error', function() {
+    console.log("It's cool we're already in here.");
+    if (callback) callback();
+  });
+  insertQuery.on('end', function() {
+    console.log("New User Added.");
+    if (callback) callback();
+  });
+
+}
+
+//storing history as a single string separated by the '*' character.
+//only keep last 5 messages.
+//trying to stay with free db.
+function storeMessageHistory(g, res, userClient, sender, body, callback) {
+  var divider = '*';
+  var historyLength = 5;
+  var cryptoSender = G.cryptoHelper.encrypt(sender);
+  var findQueryString = "SELECT * FROM users WHERE phone_number = '" + cryptoSender + "'";
+  var findQuery = historyClient.query(findQueryString);
+  findQuery.on('row', function(row) {
+    console.log(JSON.stringify(row));
+    var messageHistory = (body + divider + row.message_body).split(divider);
+    messageHistory = messageHistory.slice(0, historyLength);
+    
+    if (callback) callback(messageHistory);
+
+    var newBody = messageHistory.join(divider);
+
+    var queryString = "UPDATE users SET message_body = '" + newBody + "' WHERE phone_number = '" + cryptoSender + "'";
+    var udpateQuery = historyClient.query(queryString);
+    udpateQuery.on('end', function() {
+      console.log("message history updated to " + newBody);
+    });
+  });
 }
 
 // [START receive_call]
-app.post('/call/receive', function (req, res) {
-  var resp = new TwimlResponse();
-  resp.say({voice:'woman'}, 'Welcome to Bad Batch Alert!');
-  resp.gather({ timeout:30 }, function() {
-    this.say('Press 1 to join');
-  });
-  resp.record({timeout:30, transcribe:true, transcribeCallback:"https://badbatchalertstaging.herokuapp.com/watson/receive"});
+app.post('/call/receive', bodyParser, function (req, res) {
+  
+  var sender = req.body.From;
+  var body   = "phone call";
+  console.log ('SENDER:' + sender + ', BODY:' + body);
+  insertUser(res, sender, body);
 
-
-
-  res.status(200)
-    .contentType('text/xml')
-    .send(resp.toString());
+  G.voiceActions.doVoiceActions(req, res);
+ 
 });
-// [END receive_call]
-function regionCount(res, client, sender, body){
-
-  var findQuery = client.query(findQueryString);
-    findQuery.on('row', function(row) {
-      console.log(JSON.stringify(row));
-        mediaUrl: "http://www.mike-legrand.com/BadBatchAlert/uplift.jpg"  
-      }, function (err) {
-        if (err) {
-          return next(err);
-        }
-      });
-    }).on('error', function() {
-      console.log("nobody in region " + region + " to alert.")
-});
-};
 
 // [START receive_sms]
 app.post('/sms/receive', bodyParser, function (req, res) {
-  
   var sender = req.body.From;
   var body   = req.body.Body;
   console.log ('SENDER:' + sender + ', BODY:' + body);
- 
-  //connect to the db
-  pg.defaults.ssl = true;
-  pg.connect(process.env.DATABASE_URL, function(err, client) {
-    if (err) throw err;
-    console.log('Connected to db');
-    doAction(res, client, sender, body);
-  });
+  doAction(res, sender, body);
 });
-// [END receive_sms]
 
 // Voice to text test
 app.post('/watson/receive', function (test) {
@@ -99,12 +159,57 @@ app.post('/watson/receive', function (test) {
   console.log(test);
 });
 
+//Login test
+app.post('/webadmin/receive', function (req, res) {
+  
+ var body = "";
+ req.on('data', function (chunk) {
+   body += chunk;
+ });
+ req.on('end', function () {
+  console.log(body);
+  var jsonBody = JSON.parse(body);
+  var username = jsonBody.username;
+  var password = jsonBody.password;
+  var findQueryString = "SELECT * FROM admin WHERE username = '" + username + "' and password = '" + password + "'" ;
+  var findQuery = webAdminClient.query(findQueryString);
+  findQuery.on('row', function(row) {
+    console.log("found row");
+    console.log(JSON.stringify(row));
+    var payload = {
+      err:null,
+      token:"authtoken",
+    }
+    res.status(200)
+      .contentType('text/json')
+      .send(payload);
+  });
+
+  findQuery.on('end', function(result) {
+    console.log('end got called' + result);
+    if (result.rowCount > 0) return;
+    console.log("did not find user/pass")
+    var payload = {
+      err:1,
+      tonek:null
+    }
+    res.status(200)
+      .contentType('text/json')
+      .send(payload);
+    });
+  });
+
+
+});
+
+
 
 // Start the server
 var server = app.listen(process.env.PORT || '8080', function () {
   console.log('Bad Batch Alert listening on port %s', server.address().port);
   console.log('Press Ctrl+C to quit.');
 });
+
 
 
 
