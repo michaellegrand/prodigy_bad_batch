@@ -202,6 +202,50 @@ app.post('/webadmin/receive', function (req, res) {
 
 });
 
+//regionCount (get users per region)
+app.post('/webadmin/getuserinregion', function (req, res) {
+  
+ var body = "";
+ req.on('data', function (chunk) {
+   body += chunk;
+ });
+ req.on('end', function () {
+  console.log(body);
+  var jsonBody = JSON.parse(body);
+  var regionNumber = jsonBody.regionNumber;
+  var findQueryString = "SELECT * FROM admin WHERE username = '" + username + "' and password = '" + password + "'" ;
+  var findQuery = webAdminClient.query(findQueryString);
+  findQuery.on('row', function(row) {
+    console.log("found row");
+    console.log(JSON.stringify(row));
+    var payload = {
+      err:null,
+      token:"authtoken",
+    }
+    res.status(200)
+      .contentType('text/json')
+      .send(payload);
+  });
+
+  findQuery.on('end', function(result) {
+    console.log('end got called' + result);
+    if (result.rowCount > 0) return;
+    console.log("did not find user/pass")
+    var payload = {
+      err:1,
+      tonek:null
+    }
+    res.status(200)
+      .contentType('text/json')
+      .send(payload);
+    });
+  });
+
+
+});
+
+
+
 
 
 // Start the server
