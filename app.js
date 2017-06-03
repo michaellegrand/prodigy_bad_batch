@@ -213,7 +213,7 @@ app.post('/webadmin/getuserinregion', function (req, res) {
   console.log(body);
   var jsonBody = JSON.parse(body);
   var regionNumber = jsonBody.regionNumber;
-  var findQueryString = "SELECT * FROM admin WHERE username = '" + username + "' and password = '" + password + "'" ;
+  var findQueryString = "SELECT * FROM users WHERE region = " + regionNumber;  
   var findQuery = webAdminClient.query(findQueryString);
   findQuery.on('row', function(row) {
     console.log("found row");
