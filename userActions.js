@@ -1,7 +1,7 @@
 var UserActions = function() 
 {
   var self = this;
-  var commands = ["van","near","join","help","map", "add", "leave", "!", "share", "info","treatment", "lockzone"];
+  var commands = ["van","near","join","help","map", "add", "leave", "!", "share", "info","treatment"];
   var commandDescriptions = ["Tells you where the Baltimore Needle Exchange Van is at any time.",
    "Tells you where the nearest available medical care center is.", 
    "Registers you with the Bad Batch alert service.",
