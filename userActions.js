@@ -1,7 +1,7 @@
 var UserActions = function() 
 {
   var self = this;
-  var commands = ["van","near","join","help","map", "add", "leave", "!", "share", "info"];
+  var commands = ["van","near","join","help","map", "add", "leave", "!", "share", "info","treatment"];
   var commandDescriptions = ["Tells you where the Baltimore Needle Exchange Van is at any time.",
    "Tells you where the nearest available medical care center is.", 
    "Registers you with the Bad Batch alert service.",
@@ -11,7 +11,8 @@ var UserActions = function()
    "Removes you from the Bad Batch alert service. You can rejoin at any time by texting this number",
    "Text '!' followed by your message to anonymously send a message to someone who can help you.", 
    "Text 'share' followed by a friend's number to tell that friend about the Bad Batch Alert service.",
-   "Gives you some additional information about the service"];
+   "Gives you some additional information about the service",
+   "To get the 24 hour crisis number."];
 
    var regionZips = [ 
    /* region 1  */    [21217, 21216],
@@ -452,6 +453,8 @@ var UserActions = function()
     } else if (command == 'help') {
       self.userHelp(g, res, client, sender, body);
     } else if (command == 'detox') {
+      self.userDetox(g, res, client, sender, body);
+    } else if (command == 'treatment') {
       self.userDetox(g, res, client, sender, body);
     } else if (command.startsWith('share')) {
       self.userShare(g, res, client, sender, body);
