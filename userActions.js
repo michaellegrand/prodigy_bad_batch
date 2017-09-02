@@ -295,10 +295,20 @@ var UserActions = function()
     var length = "share".length + 1;
     var number = action.substring(length);
     
-    number.replace(/-|\s|\(|\) /g , "");
+    //Removes unneeded cluter, adds/checks for 1, always add +
+    number = number.replace(/-|\s|\(|\)|\+/g , "");
     console.log(number);
-   
-	  
+
+    if(number.startsWith("1")) { 
+      console.log("It's there") 
+   }
+    else{
+      number = "1" + number;
+      console.log("It's not here")
+    };
+
+    number = "+" + number;
+
     var body;
     var isValidNumber = true;
     if (number.length != '+10000000000'.length) {
