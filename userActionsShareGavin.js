@@ -7,11 +7,11 @@ var UserActions = function()
    "Registers you with the Bad Batch alert service.",
    "Shows you a list of commands you can send.",
    "Shows you the Region Map, which has numbers that correspond to areas in the city. You can then text the number of the area in which you live, which determines the kind of overdose alerts you will get.",
-   "Text 'add' followed by your region number to get alerts in multiple regions",
-   "Removes you from the Bad Batch alert service. You can rejoin at any time by texting this number",
+   "Text 'add' followed by your region number to get alerts in multiple regions.",
+   "Removes you from the Bad Batch alert service. You can rejoin at any time by texting this number.",
    "Text '!' followed by your message to anonymously send a message to someone who can help you.", 
    "Text 'share' followed by a friend's number to tell that friend about the Bad Batch Alert service.",
-   "Gives you some additional information about the service",
+   "Gives you some additional information about the service.",
    "To get the 24 hour crisis number.",
    "To get information about naloxone resources near you."];
 
@@ -45,7 +45,7 @@ var UserActions = function()
    self.userInfo = function(g, res, client, sender, action)
    {
       console.log("userInfo");
-      var body  = "Bad Batch Alert is an anonomys free text message service to help heroin users stay alive in Baltimore City.\n"
+      var body  = "Bad Batch Alert is an anonymous free text message service to help heroin users stay alive in Baltimore City.\n"
                 + "We use data from EMS and the Health Department to send alerts directly to you when a potentially lethal batch of tainted heroin is in your neighborhood.\n"
                 + "Find out more at BadBatchAlert.com";
       var media = "http://www.mike-legrand.com/BadBatchAlert/logoSmall150.png";
@@ -91,7 +91,7 @@ var UserActions = function()
     findQuery.on('error', function() {
       console.log('Error on userLeave');
     });
-    var body= "Thanks for using Bad Batch. Text 'join' to continue recieving updates.";
+    var body= "Thanks for using Bad Batch. Text 'join' to continue receiving updates.";
     if(res) self.userResponse(res, body);
   };
   
@@ -134,7 +134,7 @@ var UserActions = function()
       isValidRegion = true;
     }
     if (isValidRegion === false) {
-      var body = "Sorry we didn't understand that. Text 'add' followed by a single region number to receive alerts in an additional region";
+      var body = "Sorry we didn't understand that. Text 'add' followed by a single region number to receive alerts in an additional region.";
       self.userResponse(res, body);
       return;
     }
@@ -164,7 +164,7 @@ var UserActions = function()
       }
       if (alreadyFound) {
         console.log('already found this region in your list');
-        var body = "👍 You are all set to receive alerts in these regions " + regions;
+        var body = "👍 You are all set to receive alerts in these regions: " + regions;
         var resp = '<Response><Message><Body>' + body + '</Body></Message></Response>';
         res.status(200)
         .contentType('text/xml')
@@ -179,7 +179,7 @@ var UserActions = function()
       console.log(insertQueryString);
       var insertQuery = client.query(insertQueryString);
       insertQuery.on('end', function() {
-        var body = "👍 You are all set to receive alerts in these regions " + regions;
+        var body = "👍 You are all set to receive alerts in these regions: " + regions;
         self.userResponse(res, body);
       });
     });
@@ -304,7 +304,7 @@ var UserActions = function()
     var regReplace = /\+|\(|\)|-|\s/g;
 
     number = number.replace(regReplace, "");
-	  if (!number[0] == "1")
+	  if (number[0] != "1")
     {
       number = "1" + number;
       console.log("number");
