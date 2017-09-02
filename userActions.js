@@ -295,14 +295,7 @@ var UserActions = function()
     var length = "share".length + 1;
     var number = action.substring(length);
     
-    number = "+1" + number;
-    number = number.replace("+","");
-    number = number.replace("+1","1");
-    number = number.replace(" ","");
-    number = number.replace("-" , "");
-    number = number.replace("(" , "");
-    number = number.replace(")" , "");
-
+    number.replace(/-|\s|\(|\) /g , "");
     console.log(number);
    
 	  
