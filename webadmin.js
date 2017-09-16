@@ -161,10 +161,24 @@ var WebAdmin = function() {
           .send(payload);
           return;
         }
+
+
+        //find all the users in the regions passed in.
+        //text each user with the message.
+        var region;
+        for (var i = 0; i < regions.length; i++) {
+          if (regions[i]) {
+            region = i+1;
+            break;
+          }
+        }
+        var media = "http://www.badbatchalert.com/images/regions/region_" + region + ".jpg";
+       
         g.twilio.sendMessage({
           to: phoneNumber,
           from: TWILIO_NUMBER,
-          body: message
+          body: message,
+          mediaUrl: media
         }, function (err) {
           if (err) {
             console.log(err);
