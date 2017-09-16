@@ -119,8 +119,7 @@ var UserActions = function()
         if (!res) return;
         var body = "👍 You are all set to receive alerts in region " + region + ".\n\n" +
         "There are many other useful resources built into this service. To see all the commands text the word 'help'.";
-        var media = "http://www.badbatchalert.com/images/regions/region_" + region + ".jpg";
-        self.userResponse(res, body, media); 
+        self.userResponse(res, body); 
       });
     });
   };
@@ -174,20 +173,13 @@ var UserActions = function()
       }
 
       regionsArray.push(region);
-      if (regionsArray.length > 3) {
-        console.log ('Too many regions');
-        var body = "We're sorry, You can only register for 3 regions. To reset your regions just type the number for the region you wish to start with."
-        self.userResponse(res, body);
-        return;
-      }
-
       regions = regionsArray.length > 1 ?  regionsArray.join(', ') : regionsArray.join('');
       console.log ('regions after =' + regions);
       var insertQueryString = "UPDATE users SET regions = '" + regions + "' WHERE phone_number = '" + cryptoSender + "'";
       console.log(insertQueryString);
       var insertQuery = client.query(insertQueryString);
       insertQuery.on('end', function() {
-        var body = "👍 You are all set to receive alerts in these regions " + regions;
+        var body = "👍 You are all set to receive alerts in these regions: " + regions;
         self.userResponse(res, body);
       });
     });
@@ -209,7 +201,7 @@ var UserActions = function()
         var body = "👌 You're signed up as: " + name;
         self.userResponse(res, body);
       });
-    }); 
+    });
   };
 	
   self.userDetox = function(g, res, client, sender, action)
@@ -299,24 +291,25 @@ var UserActions = function()
 
   self.userNaloxone = function(g, res, client, sender, action) 
   {
-    console.log("userNaloxone");
-    var body  = "See the Naloxone training schedule at: http://dontdie.org/public-trainings-schedule/, Watch a Naloxone training video here: https://www.youtube.com/watch?v=YyDdMdLvdBc";
+    var body  = "This new feature is currently under development.";
     self.userResponse(res, body);
-  };
+  }
 
   //userShare will allow the user's message to share their experience to others/
   self.userShare = function(g, res, client, sender, action)
   { 
     var TWILIO_NUMBER = process.env.TWILIO_NUMBER;
-    var length = "share".length;
+    var length = "share".length + 1;
     var number = action.substring(length);
-    number = number.replace(/\s|-|\(|\)|\+/g, '');
-	  
-    if (!number.startsWith('1')) {
-      number = '1' + number;
+    var regReplace = /\+|\(|\)|-|\s/g;
+
+    number = number.replace(regReplace, "");
+	  if (number[0] != "1")
+    {
+      number = "1" + number;
+      console.log("number");
     }
     number = "+" + number;
-     
     var body;
     var isValidNumber = true;
     if (number.length != '+10000000000'.length) {
@@ -414,7 +407,17 @@ var UserActions = function()
   self.userSetZipCode = function(g, res, client, sender, body) 
   {
     console.log("userSetZipCode");
-    var matchedRegionsArray = self.getRegionsFromZipCode(body);
+    var zipCode = parseInt(body);
+    var matchedRegionsArray = [];
+    for (var i = 0; i < regionZips.length; i++) {
+      var zips = regionZips[i];
+      for (var j = 0; j < zips.length; j++) {
+        var zip = zips[j];
+        if (zip == zipCode) {
+          matchedRegionsArray.push(i + 1);
+        }
+      }
+    }
     if (matchedRegionsArray.length === 0) {
       var errorText = "Sorry, this service is only available in the Baltimore metro area. If you'd like to have your area added to the Bad Batch Alert Serivce, send an email to badbatchalert@gmail.com.";
       if (res) self.userResponse(res, errortext);
@@ -436,22 +439,6 @@ var UserActions = function()
     if (body.length !== 5) return false;
     if (isNaN(body)) return false;
     return true;
-  };
-
-  self.getRegionsFromZipCode = function(body)
-  {
-    var zipCode = parseInt(body);
-    var matchedRegionsArray = [];
-    for (var i = 0; i < regionZips.length; i++) {
-      var zips = regionZips[i];
-      for (var j = 0; j < zips.length; j++) {
-        var zip = zips[j];
-        if (zip == zipCode) {
-          matchedRegionsArray.push(i + 1);
-        }
-      }
-    }
-    return matchedRegionsArray;
   };
 
  
