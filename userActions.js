@@ -300,7 +300,7 @@ var UserActions = function()
   self.userNaloxone = function(g, res, client, sender, action) 
   {
     console.log("userNaloxone");
-    var body  = "See the Naloxone training schedule at: http://dontdie.org/public-trainings-schedule/, Watch a Naloxone training video here: https://www.youtube.com/watch?v=YyDdMdLvdBc";
+    var body  = "call 410-433-5175 for 24 hour service. The link to the training video http://bit.ly/2xGLkPA";
     self.userResponse(res, body);
   };
 
