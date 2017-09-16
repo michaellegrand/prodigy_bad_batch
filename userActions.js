@@ -1,18 +1,19 @@
 var UserActions = function() 
 {
   var self = this;
-  var commands = ["van","near","join","help","map", "add", "leave", "!", "share", "info","treatment", "lockzone"];
+  var commands = ["van", "near", "join", "help", "map", "add", "leave", "!", "share", "info", "treatment", "naloxone"];
   var commandDescriptions = ["Tells you where the Baltimore Needle Exchange Van is at any time.",
    "Tells you where the nearest available medical care center is.", 
    "Registers you with the Bad Batch alert service.",
    "Shows you a list of commands you can send.",
    "Shows you the Region Map, which has numbers that correspond to areas in the city. You can then text the number of the area in which you live, which determines the kind of overdose alerts you will get.",
-   "Text 'add' followed by your region number to get alerts in multiple regions",
-   "Removes you from the Bad Batch alert service. You can rejoin at any time by texting this number",
+   "Text 'add' followed by your region number to get alerts in multiple regions.",
+   "Removes you from the Bad Batch alert service. You can rejoin at any time by texting this number.",
    "Text '!' followed by your message to anonymously send a message to someone who can help you.", 
    "Text 'share' followed by a friend's number to tell that friend about the Bad Batch Alert service.",
-   "Gives you some additional information about the service",
-   "To get the 24 hour crisis number."];
+   "Gives you some additional information about the service.",
+   "To get the 24 hour crisis number.",
+   "To get information about naloxone resources near you."];
 
    var regionZips = [ 
    /* region 1  */    [21217, 21216],
@@ -44,7 +45,7 @@ var UserActions = function()
    self.userInfo = function(g, res, client, sender, action)
    {
       console.log("userInfo");
-      var body  = "Bad Batch Alert is an anonomys free text message service to help heroin users stay alive in Baltimore City.\n"
+      var body  = "Bad Batch Alert is an anonymous free text message service to help heroin users stay alive in Baltimore City.\n"
                 + "We use data from EMS and the Health Department to send alerts directly to you when a potentially lethal batch of tainted heroin is in your neighborhood.\n"
                 + "Find out more at BadBatchAlert.com";
       var media = "http://www.mike-legrand.com/BadBatchAlert/logoSmall150.png";
@@ -76,7 +77,7 @@ var UserActions = function()
     self.userResponse(res, body);
   };
   
-  self.userLeave= function(g, res, client, sender, action)
+  self.userLeave = function(g, res, client, sender, action)
   { 
     console.log("userLeave");
     var cryptoSender = g.cryptoHelper.encrypt(sender);
@@ -90,8 +91,8 @@ var UserActions = function()
     findQuery.on('error', function() {
       console.log('Error on userLeave');
     });
-    var body= "Thanks for using Bad Batch. Text 'join' to continue recieving updates.";
-    self.userResponse(res, body);
+    var body= "Thanks for using Bad Batch. Text 'join' to continue receiving updates.";
+    if(res) self.userResponse(res, body);
   };
   
   self.userMap = function(g, res, client, sender, action)
@@ -115,9 +116,11 @@ var UserActions = function()
       var insertQueryString = "UPDATE users SET regions = '" + region + "' WHERE phone_number = '" + cryptoSender + "'";
       var insertQuery = client.query(insertQueryString);
       insertQuery.on('end', function() {
+        if (!res) return;
         var body = "👍 You are all set to receive alerts in region " + region + ".\n\n" +
         "There are many other useful resources built into this service. To see all the commands text the word 'help'.";
-        self.userResponse(res, body); 
+        var media = "http://www.badbatchalert.com/images/regions/region_" + region + ".jpg";
+        self.userResponse(res, body, media); 
       });
     });
   };
@@ -132,7 +135,7 @@ var UserActions = function()
       isValidRegion = true;
     }
     if (isValidRegion === false) {
-      var body = "Sorry we didn't understand that. Text 'add' followed by a single region number to receive alerts in an additional region";
+      var body = "Sorry we didn't understand that. Text 'add' followed by a single region number to receive alerts in an additional region.";
       self.userResponse(res, body);
       return;
     }
@@ -162,7 +165,7 @@ var UserActions = function()
       }
       if (alreadyFound) {
         console.log('already found this region in your list');
-        var body = "👍 You are all set to receive alerts in these regions " + regions;
+        var body = "👍 You are all set to receive alerts in these regions: " + regions;
         var resp = '<Response><Message><Body>' + body + '</Body></Message></Response>';
         res.status(200)
         .contentType('text/xml')
@@ -171,6 +174,13 @@ var UserActions = function()
       }
 
       regionsArray.push(region);
+      if (regionsArray.length > 3) {
+        console.log ('Too many regions');
+        var body = "We're sorry, You can only register for 3 regions. To reset your regions just type the number for the region you wish to start with."
+        self.userResponse(res, body);
+        return;
+      }
+
       regions = regionsArray.length > 1 ?  regionsArray.join(', ') : regionsArray.join('');
       console.log ('regions after =' + regions);
       var insertQueryString = "UPDATE users SET regions = '" + regions + "' WHERE phone_number = '" + cryptoSender + "'";
@@ -199,7 +209,7 @@ var UserActions = function()
         var body = "👌 You're signed up as: " + name;
         self.userResponse(res, body);
       });
-    });
+    }); 
   };
 	
   self.userDetox = function(g, res, client, sender, action)
@@ -264,27 +274,33 @@ var UserActions = function()
       }
     }); 
 
-    var body  = "Your report has been sent. Text 'OD' if this is an emergency.";
+    var body  = "Your report has been sent. Please contact 911 if this is a medical emergency.";
     self.userResponse(res, body);
   };
-
-  //userOd will message the user on a critical question /
-  self.userOd = function(g, res, client, sender, action)
-  { 
-    var od = "Urgent alert!";
+	
+  self.userOd = function(g, res, client, sender, action) 
+  {
+    var report = "EMERGENCY";
     var MY_NUMBER  = process.env.MY_NUMBER;
     var TWILIO_NUMBER = process.env.TWILIO_NUMBER;
     g.twilio.sendMessage({
       to: MY_NUMBER,
       from: TWILIO_NUMBER,
-      body: od 
+      body: report
     }, function (err) {
       if (err) {
         console.log(err);
       }
     }); 
 
-    var body  = "Thank you for your report, we are taking action.";
+    var body  = "Thank you for your report we are taking action.";
+    self.userResponse(res, body);
+  };
+
+  self.userNaloxone = function(g, res, client, sender, action) 
+  {
+    console.log("userNaloxone");
+    var body  = "See the Naloxone training schedule at: http://dontdie.org/public-trainings-schedule/, Watch a Naloxone training video here: https://www.youtube.com/watch?v=YyDdMdLvdBc";
     self.userResponse(res, body);
   };
 
@@ -292,23 +308,15 @@ var UserActions = function()
   self.userShare = function(g, res, client, sender, action)
   { 
     var TWILIO_NUMBER = process.env.TWILIO_NUMBER;
-    var length = "share".length + 1;
+    var length = "share".length;
     var number = action.substring(length);
-    
-    //Removes unneeded cluter, adds/checks for 1, always add +
-    number = number.replace(/-|\s|\(|\)|\+/g , "");
-    console.log(number);
-
-    if(number.startsWith("1")) { 
-      console.log("It's there") 
-   }
-    else{
-      number = "1" + number;
-      console.log("It's not here")
-    };
-
+    number = number.replace(/\s|-|\(|\)|\+/g, '');
+	  
+    if (!number.startsWith('1')) {
+      number = '1' + number;
+    }
     number = "+" + number;
-
+     
     var body;
     var isValidNumber = true;
     if (number.length != '+10000000000'.length) {
@@ -332,7 +340,7 @@ var UserActions = function()
     self.userResponse(res, body);
   };
   
-  //userNeedles will show you where and when the need fan will show up at certain times/
+  //userVan will show you where and when the needle exchange van will show up at certain times
   self.userVan = function (g,res,client,sender,action)
   {
     console.log("userVan");
@@ -395,97 +403,21 @@ var UserActions = function()
     }
 
     //send message
-    var body = vanLocation;
-    self.userResponse(res, body);
+    if (res) {
+      self.userResponse(res, vanLocation +' Full schduele at http://bit.ly/2vN1GE6.');
+    }
 
-  };
-
-
-  //Sends map picture of medical centre, and training schedule/
-  self.userLockzone = function (g,res,client,sender,action)
-  {
-    console.log("userLockzone");
-    //EST
-    offset = -4.0;//need a better solution here this needs to be updated with daylight savings.
-    clientDate = new Date();
-    utc = clientDate.getTime() + (clientDate.getTimezoneOffset() * 60000);
-    serverDate = new Date(utc + (3600000*offset));
-    console.log(serverDate.toLocaleString());  
-	  
-    var n = serverDate.getDay();
-    var h = serverDate.getHours();
-    var m = serverDate.getMinutes();
-    var vanLocation = 'Lockzone';
-    console.log('n:' + n + ', h:' + h + ', m:' + m); 
-    /*if (n == 1) {
-      if ( ( h == 9 && m >= 30) || ( h == 11 && m <= 30) || (h > 9 && h < 11) )  {
-        vanLocation = '🚐 Van 1 is at Monroe and Ramsey. 🚐 Van 2 is at Greenmount and Preston until 11:30 AM';
-      } else if (( h == 12 && m >= 45 ) || ( h == 15 && m <= 30) || (h > 12 && h < 15)){
-        vanLocation = '🚐The van is at Fulton and Baker until 3:30 PM';
-      } else if (( h >= 18) && ( h <= 20)) { 
-        vanLocation = '🚐 The van is at Baltimore and Conkling Highlandtown until 8:00 PM';
-      } else if (( h == 20 && m >= 30) || (h > 20 && h < 22)) {
-        vanLocation = '🚐 The van is at Milton and Monument until 10:00 PM';
-      }
-    } else if (n == 2) {
-      if (( h == 9 && m >= 30) || ( h == 11 && m <= 30) || (h > 9 && h < 11)) {
-        vanLocation = '🚐 Van 1 is at Montford and Biddle. 🚐 Van 2 is at Pratt and Carey';
-      } else if (( h == 12 && m >= 45 ) || ( h == 15 && m <= 30) || (h > 12 && h < 15)){
-        vanLocation = '🚐 The van is at Freemont and Riggs Barclay and 23rd until 3:30 PM';
-      }
-    } else if (n == 3) {
-      if (( h >= 18) && ( h < 20)){
-        vanLocation = '🚐 The van is at Baltimore and Conkling (Highlandtown) until 8:00 PM';
-      } else if (( h == 20 && m >= 30) || (h > 20 && h < 22)) {
-        vanLocation = '🚐 The van is at Freemont and Laurens until 10:00 PM';
-      }
-    } else if (n == 4) {
-      if (( h == 9 && m >= 30) || ( h == 11 && m <= 30) || (h > 9 && h < 11)) {
-         vanLocation = '🚐 Van1 is at Pontiac and 9th Ave. Van 2 is at North and Rosedale until 11:30 AM';
-      } else if (( h == 12 && m >= 45 ) || ( h == 15 && m <= 30) || (h > 12 && h < 15)) {
-         vanLocation = '🚐 Van 1 is at Milton and Monument. 🚐 Van 2 is at Monroe and Ramsey until 3:30 PM';
-      } else if (h >= 19 && h < 22 ) {
-         vanLocation = '🚐 The van is at Baltimore and Gay (The Block) until 10:00 PM'; 
-      }
-    } else if (n == 5){
-      if (( h == 9 && m >= 30) || ( h == 11 && m <= 30) || (h > 9 && h < 11)) {
-        vanLocation = '🚐 Van 1 is at Park Heights and Spaulding. 🚐 Van 2 is at North and Gay until 11:30 AM';
-      } else if (( h == 12 && m >= 45 ) || ( h == 15 && m <= 30) || (h > 12 && h < 15)) {
-        vanLocation ='🚐 The van is at Fulton and Baker until 3:30 PM';
-      } else if (h >= 18 && h < 20 ) {
-        vanLocation = '🚐 The van is at Montford and Biddle until 8:00 PM';
-      } else if (( h == 20 && m >= 30) || (h > 20 && h < 22)) {
-        vanLocation = '🚐 The van is at Monroe and Ramsey until 10:00 PM';
-      }
-    } else if (n == 6){
-      if (h >= 12 && h < 16) {
-        vanLocation= '🚐 The van is at Fremont and Riggs until 4:00 PM';
-      }
-    }*/
-
-    //send message
-    var body = vanLocation;
-    self.userResponse(res, body);
+    return vanLocation;
 
   };
 
   self.userSetZipCode = function(g, res, client, sender, body) 
   {
     console.log("userSetZipCode");
-    var zipCode = parseInt(body);
-    var matchedRegionsArray = [];
-    for (var i = 0; i < regionZips.length; i++) {
-      var zips = regionZips[i];
-      for (var j = 0; j < zips.length; j++) {
-        var zip = zips[j];
-        if (zip == zipCode) {
-          matchedRegionsArray.push(i + 1);
-        }
-      }
-    }
+    var matchedRegionsArray = self.getRegionsFromZipCode(body);
     if (matchedRegionsArray.length === 0) {
       var errorText = "Sorry, this service is only available in the Baltimore metro area. If you'd like to have your area added to the Bad Batch Alert Serivce, send an email to badbatchalert@gmail.com.";
-      self.userResponse(res, errortext);
+      if (res) self.userResponse(res, errortext);
     }
     else {
       var regions = matchedRegionsArray.join(', '); 
@@ -504,6 +436,22 @@ var UserActions = function()
     if (body.length !== 5) return false;
     if (isNaN(body)) return false;
     return true;
+  };
+
+  self.getRegionsFromZipCode = function(body)
+  {
+    var zipCode = parseInt(body);
+    var matchedRegionsArray = [];
+    for (var i = 0; i < regionZips.length; i++) {
+      var zips = regionZips[i];
+      for (var j = 0; j < zips.length; j++) {
+        var zip = zips[j];
+        if (zip == zipCode) {
+          matchedRegionsArray.push(i + 1);
+        }
+      }
+    }
+    return matchedRegionsArray;
   };
 
  
@@ -528,22 +476,20 @@ var UserActions = function()
       self.userLeave(g, res, client, sender, body);
     } else if (command == 'van') {
       self.userVan(g, res, client, sender, body);
-    } else if (command == 'lockzone') {
-      self.userLockzone(g, res, client, sender, body);
     } else if (command == 'help') {
       self.userHelp(g, res, client, sender, body);
-    } else if (command == 'detox') {
-      self.userDetox(g, res, client, sender, body);
-    } else if (command == 'treatment') {
+    } else if (command == 'detox' || command == 'treatment') {
       self.userDetox(g, res, client, sender, body);
     } else if (command.startsWith('share')) {
       self.userShare(g, res, client, sender, body);
     } else if (command.startsWith('info')) {
       self.userInfo(g, res, client, sender, body);
     } else if (command == 'join') {
-      self.userJoin(g, res, client, sender, body);
+      self.userJoin(g, res, client, sender, body);   
     } else if (command == 'od') {
-      self.userOd(g, res, client, sender, body);   
+      self.userOd(g, res, client, sender, body);
+    } else if (command == 'naloxone') {
+      self.userNaloxone(g, res, client, sender, body);
     } else {
       self.userFail(g, res, client, sender, body);
     }
