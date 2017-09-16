@@ -240,6 +240,19 @@ var WebAdmin = function() {
           }
         }
         
+         var media = "http://www.badbatchalert.com/images/regions/region_" + region + ".jpg";
+       
+          g.twilio.sendMessage({
+            to: phoneNumber,
+            from: TWILIO_NUMBER,
+            body: message,
+            mediaUrl: media
+          }, function (err) {
+            if (err) {
+              console.log(err);
+            }
+          });
+
         if (!_userClient) {
           console.log("region not found");
           var payload = {
